@@ -376,6 +376,8 @@ function fetchPack($compo, $file = '')
     {
         $arc = new ArchiveFile(UPLOAD_DIR . $compo);
         $arc->Extract($file);
+        $arc->Close();
+        die();
     }
 
     $arcName = ArchiveFile::FileName(UPLOAD_DIR . $compo);
@@ -461,6 +463,8 @@ function showCompoDirectory($compo)
         $result = mysql_query("SELECT * FROM `entries` WHERE (`idcompo` = $compo) AND (`points` IS NOT NULL) ORDER BY `points` DESC, `author` ASC") or die("query failed");
         if(mysql_num_rows($result) != 0)
         {
+            echo '<script type="text/javascript" src="{{BASE}}js/chiptune2.js"></script>';
+            echo '<script type="text/javascript">var basepath = "{{BASE}}";</script>';
             echo '<h2>Entries</h2>';
             echo'<table class="stats">
                 <thead>
@@ -476,7 +480,7 @@ function showCompoDirectory($compo)
             {
                 echo '<tr><td>', $row['place'], ($row['place'] <= 3 ? ' <img src="{{BASE}}img/medal' . $row['place'] . '.png" width="16" height="16" alt="">' : ''), '</td>
                     <td>', htmlspecialchars($row['author']), '</td>
-                    <td><a href="{{BASE}}pack/', $compo, '/', urlencode($row['filename']), '">', htmlspecialchars($row['filename']), '</a></td>
+                    <td><a href="javascript:;" onclick="javascript:play(this)"><img src="{{BASE}}img/play.png" width="16" height="16" alt="Play" title="Play"></a> <a href="{{BASE}}pack/', $compo, '/', urlencode($row['filename']), '">', htmlspecialchars($row['filename']), '</a></td>
                     <td>', htmlspecialchars($row['points']), '</td>
                     </tr>'; 
             }
@@ -534,7 +538,7 @@ function canDeletePack($compo)
         return true;
     }
     $compo = intval($compo);
-    $result = mysql_query("SELECT * FROM `compos` WHERE (`idcompo` = $compo) AND (`idhost` = " . intval($_SESSION["idhost"]) . ")") or die("query failed");
+    $result = mysql_query("SELECT * FROM `compos` WHERE (`idcompo` = $compo) AND (`idhost` = " . intval(@$_SESSION["idhost"]) . ")") or die("query failed");
     if(mysql_num_rows($result) > 0)
     {
         return true;

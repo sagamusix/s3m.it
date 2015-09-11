@@ -155,7 +155,7 @@ if((isset($_POST['votes']) && is_array($_POST['votes'])) || (isset($_POST['penal
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js" type="text/javascript"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.8/jquery-ui.min.js" type="text/javascript"></script>
   <script type="text/javascript">var BASEDIR = "{{BASE}}";</script>
-  <script src="{{BASE}}lazyvote.js" type="text/javascript"></script>
+  <script src="{{BASE}}js/lazyvote.js" type="text/javascript"></script>
     <h2>Entries</h2>
 <?php
     if($isActive) echo '<p>Warning: Uploading is still active for this compo! First disable uploading before processing votes!</p>';

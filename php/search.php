@@ -105,6 +105,8 @@ if(isset($_POST['what']) && $_POST['what'] != '')
 ?>
 <h2>Entries</h2>
 
+<script type="text/javascript" src="{{BASE}}js/chiptune2.js"></script>
+<script type="text/javascript">var basepath = "{{BASE}}";</script>
 <table class="stats">
 <thead>
     <tr>
@@ -123,7 +125,7 @@ if(isset($_POST['what']) && $_POST['what'] != '')
                 if($row['points'] === NULL) $row['author'] = 'n/a';
                 echo '<tr><td>', $row['points'], '</td>
                     <td>', ordinalize($row['place']), '</td>
-                    <td title="', htmlspecialchars($row["title"]), '"><a href="{{BASE}}pack/', $row['idcompo'], '/', urlencode($row['filename']), '">', htmlspecialchars($row['filename']), '</a></td>
+                    <td title="', htmlspecialchars($row["title"]), '"><a href="javascript:;" onclick="javascript:play(this)"><img src="{{BASE}}img/play.png" width="16" height="16" alt="Play" title="Play"></a> <a href="{{BASE}}pack/', $row['idcompo'], '/', urlencode($row['filename']), '">', htmlspecialchars($row['filename']), '</a></td>
                     <td>', htmlspecialchars($row['author']), '</td>
                     <td><a href="{{BASE}}compo/', $row['idcompo'], '">', htmlspecialchars($row['name']), '</a></td>
                     </tr>';
@@ -140,7 +142,7 @@ if(isset($_POST['what']) && $_POST['what'] != '')
 ?>
 
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js" type="text/javascript"></script>
-<script src="{{BASE}}jquery.tablesorter.min.js" type="text/javascript"></script>
+<script src="{{BASE}}js/jquery.tablesorter.min.js" type="text/javascript"></script>
 <script type="text/javascript">
 $(document).ready(function()
 	{
