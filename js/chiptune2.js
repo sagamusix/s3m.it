@@ -255,22 +255,35 @@ function libopenmpt_play(elem)
         }
         player.play(buffer);
 
+        var metadata = player.metadata();
+        var title = metadata['title'];
+        if (title == '' && current != null)
+        {
+            title = current.parentNode.nextSibling.nextSibling.textContent;
+        }
+
         var sec_num = player.duration();
         var minutes = Math.floor(sec_num / 60);
         var seconds = Math.floor(sec_num % 60);
         if (seconds < 10) {seconds = "0" + seconds; }
-        document.getElementById('player').innerHTML = 'Duration: ' + minutes + ':' + seconds;
+        document.getElementById('player').innerHTML = 'Now playing: ' + title + ' (' + minutes + ':' + seconds + ')';
     });
 }
 
 function play(elem)
 {
+    if(typeof ChiptuneAudioContext == 'undefined')
+    {
+        alert('Your browser does not support the HTML5 Web Audio API :-(');
+        return;
+    }
+    
     var current = document.getElementById('currently-playing');
     if(current != null)
     {
         current.src = basepath + 'img/play.png';
         current.title = 'Play';
-        current.parentNode.onclick = play;
+        current.parentNode.onclick = function() { play(this); }
         current.id = '';
         player.stop();
     }
