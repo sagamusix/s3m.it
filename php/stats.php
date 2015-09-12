@@ -56,8 +56,8 @@ while($row = mysql_fetch_assoc($result))
 
 <h2>Entries with most points</h2>
 
-<script type="text/javascript" src="{{BASE}}js/chiptune2.js"></script>
 <script type="text/javascript">var basepath = "{{BASE}}";</script>
+<script type="text/javascript" src="{{BASE}}js/chiptune2.js"></script>
 <table class="stats">
 <thead>
     <tr>

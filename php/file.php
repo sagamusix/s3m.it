@@ -463,8 +463,8 @@ function showCompoDirectory($compo)
         $result = mysql_query("SELECT * FROM `entries` WHERE (`idcompo` = $compo) AND (`points` IS NOT NULL) ORDER BY `points` DESC, `author` ASC") or die("query failed");
         if(mysql_num_rows($result) != 0)
         {
-            echo '<script type="text/javascript" src="{{BASE}}js/chiptune2.js"></script>';
             echo '<script type="text/javascript">var basepath = "{{BASE}}";</script>';
+            echo '<script type="text/javascript" src="{{BASE}}js/chiptune2.js"></script>';
             echo '<h2>Entries</h2>';
             echo'<table class="stats">
                 <thead>
