@@ -16,7 +16,7 @@ CREATE TABLE IF NOT EXISTS `compos` (
   `downloadable` tinyint(3) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`idcompo`),
   KEY `idhost` (`idhost`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=633 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
 
 CREATE TABLE IF NOT EXISTS `entries` (
   `identry` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -32,7 +32,7 @@ CREATE TABLE IF NOT EXISTS `entries` (
   KEY `idcompo` (`idcompo`),
   KEY `points` (`points`),
   KEY `place` (`place`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=5223 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
 
 CREATE TABLE IF NOT EXISTS `hosts` (
   `idhost` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `hosts` (
   `access_level` tinyint(4) unsigned NOT NULL,
   PRIMARY KEY (`idhost`),
   UNIQUE KEY `hostname_UNIQUE` (`hostname`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=32 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
 
 CREATE TABLE IF NOT EXISTS `uploading` (
   `idupload` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -49,7 +49,7 @@ CREATE TABLE IF NOT EXISTS `uploading` (
   `start` int(10) unsigned NOT NULL,
   `idcompo` int(10) unsigned NOT NULL,
   PRIMARY KEY (`idupload`)
-) ENGINE=MyISAM  DEFAULT CHARSET=utf8 AUTO_INCREMENT=4745 ;
+) ENGINE=MyISAM  DEFAULT CHARSET=utf8 ;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
