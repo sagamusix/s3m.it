@@ -31,7 +31,7 @@ define('MAX_COMPONAME_LENGTH', 64);
 
 // Server constants.
 define('BASEDIR', rtrim(dirname($_SERVER['PHP_SELF']), '/\\') . '/');
-define('SERVER', 'http://' . $_SERVER['HTTP_HOST']);
+define('SERVER', (isset($_SERVER['HTTPS']) ? 'https://' : 'http://') . $_SERVER['HTTP_HOST']);
 define('BASEDIR_ABSOLUTE', SERVER . BASEDIR);
 
 // Has to be defined or else the scripts will abort.
