@@ -30,6 +30,7 @@ while($row = mysql_fetch_assoc($result))
     array_push($compos, $row);
     array_push($compoids, $row["idcompo"]);
 }
+$numCompos = count($compoids);
 
 if(isset($_GET["compoid"]) && in_array($_GET["compoid"], $compoids))
 {
@@ -41,10 +42,17 @@ if(isset($_GET["compoid"]) && in_array($_GET["compoid"], $compoids))
             break;
         }
     }
-} else if(count($compoids) == 1)
+} else if(isset($_GET["compoid"]) && $numCompos > 0)
+{
+?>
+          <p>
+            Uploading is closed for this compo.
+          </p>
+<?php
+} else if($numCompos == 1)
 {
     uploadform($compos[0]);
-} else if(count($compoids) > 0)
+} else if($numCompos > 0)
 {
     listHosts();
 } else
