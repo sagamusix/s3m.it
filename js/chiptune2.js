@@ -219,6 +219,7 @@ ChiptuneJsPlayer.prototype.createLibopenmptNode = function(buffer, config) {
 
 
 var player;
+var Module = { memoryInitializerPrefixURL : basepath + "js/" };
 
 function pauseButton() {
     player.togglePause();

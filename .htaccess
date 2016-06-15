@@ -26,3 +26,14 @@ RewriteRule ^search$ index.php?search [L]
 RewriteRule ^compos$ index.php?compos [L]
 
 RewriteRule ^admin/voting/(\d+)/(.*)$ index.php?admin&action=voting&which=$1&$2 [L]
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+  ExpiresByType image/gif A1209600
+  ExpiresByType image/jpg A1209600
+  ExpiresByType image/jpeg A1209600
+  ExpiresByType image/png A1209600
+  ExpiresByType text/css A1209600
+  ExpiresByType text/javascript A1209600
+  ExpiresByType application/javascript A1209600
+</IfModule>

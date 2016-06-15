@@ -2,13 +2,27 @@
 // Serve libopenmpt through gzip-compressed stream if possible.
 // Done with PHP to avoid server-specific setup.
 
-$supportsGzip = strpos(@$_SERVER['HTTP_ACCEPT_ENCODING'], 'gzip') !== false;
+$supportsGzip = false;
+$supportsBrotli = false;
+$encodings = explode(',', @$_SERVER['HTTP_ACCEPT_ENCODING']);
+foreach($encodings as $encoding)
+{
+    $encoding = trim($encoding);
+    if($encoding == 'br')
+        $supportsBrotli = true;
+    else if($encoding == 'gzip')
+        $supportsGzip = true;
+}
 
 $file = 'libopenmpt.js';
-if ($supportsGzip)
+if($supportsBrotli)
+    $file .= '.br';
+else if($supportsGzip)
     $file .= '.gz';
 
-$fdate = filemtime($file); 
+$stat = stat($file);
+$fdate = $stat['mtime'];
+$fsize = $stat['size']; 
 if(strtotime(@$_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $fdate)
 {
     header("HTTP/1.1 304 Not Modified");
@@ -16,11 +30,12 @@ if(strtotime(@$_SERVER['HTTP_IF_MODIFIED_SINCE']) >= $fdate)
 }
 
 header('Content-type: text/javascript');
-if ($supportsGzip) header('Content-Encoding: gzip');
+if($supportsBrotli)
+    header('Content-Encoding: br');
+else if($supportsGzip)
+    header('Content-Encoding: gzip');
 header('Last-Modified: ' . date('r', $fdate));
 header("Cache-Control: must-revalidate");
 header('Expires: ' . date('r', time() + 60 * 60 * 24));
-ob_start();
+header('Content-Length: ' . $fsize);
 readfile($file);
-header('Content-Length: ' . ob_get_length());
-ob_end_flush();
