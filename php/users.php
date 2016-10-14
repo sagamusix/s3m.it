@@ -346,5 +346,3 @@ function canDeleteUser($row)
 {
     return (ACCESS >= ACCESS_FULLADMIN);
 }
-
-?>

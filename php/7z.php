@@ -102,5 +102,3 @@ class ArchiveFile
         rmdir($tempDir);
     }
 }
-
-?>

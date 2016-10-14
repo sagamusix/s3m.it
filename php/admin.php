@@ -52,4 +52,3 @@ switch($_GET["action"])
         require("php/lazyvote.php");
         break;
 }
-?>

@@ -239,7 +239,7 @@ th.headerSortDown:after
 
 #player
 {
-    font-size: 75;
+    font-size: 75%;
     color: #888;
     position: fixed;
     top: 1em;

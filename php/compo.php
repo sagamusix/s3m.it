@@ -488,4 +488,3 @@ function viewCompoAjax($compo, $ajax)
 
     return $alteredFiles;
 }
-?>

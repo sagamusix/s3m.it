@@ -58,6 +58,3 @@ if(isset($_POST["login"]) && ($_POST["login"] == $oldSession) && isset($_POST["h
           <div class="table-desc">&nbsp;</div>
           <div class="table-item"><input type="submit" /></div>
           </form>
-
-<?php
-?>

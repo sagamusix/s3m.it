@@ -545,6 +545,3 @@ function canDeletePack($compo)
     }
     return false;
 }
-
-
-?>

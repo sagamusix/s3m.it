@@ -220,5 +220,3 @@ function listHosts()
     }
     echo "</ul>\n";
 }
-
-?>

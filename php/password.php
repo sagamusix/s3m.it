@@ -27,5 +27,3 @@ function makepassword($plain, $hashed = NULL)
 
     return $salt . hash('whirlpool', $salt . $plain);
 }
-
-?>

@@ -83,5 +83,3 @@ class ArchiveFile
         // Not necessary
     }
 }
-
-?>

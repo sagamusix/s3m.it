@@ -81,5 +81,3 @@ $text = str_replace('{{SERVER}}', htmlspecialchars(SERVER), $text);
 echo $text;
 
 db_disconnect();
-
-?>

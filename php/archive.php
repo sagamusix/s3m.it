@@ -12,5 +12,3 @@ if(!defined("COMPOMANAGER"))
 }
 
 require_once('7z.php');
-
-?>
