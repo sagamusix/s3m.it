@@ -81,12 +81,16 @@ if(!isset($_GET["compoid"]))
         LIMIT 0, 5
     ') or die('query failed');
     
+    $stmt1stPlace = $mysqli->prepare("SELECT `author` FROM `entries` WHERE (`idcompo` = ?) AND (`place` = 1)") or die('query failed');
+    
     while($row = $result->fetch_assoc())
     {
         echo '<li><a href="{{BASE}}compo/', $row['idcompo'], '">', htmlspecialchars($row['name']), '</a>';
 
         // Display winners
-        $result2 = $mysqli->query("SELECT `author` FROM `entries` WHERE (`idcompo` = {$row['idcompo']}) AND (`place` = 1)") or die('query failed');
+        $stmt1stPlace->bind_param('i', $row['idcompo']);
+        $stmt1stPlace->execute() or die('query failed');
+        $result2 = $stmt1stPlace->get_result();
         $winners = $result2->num_rows;
         if($winners != 0)
         {
@@ -107,6 +111,7 @@ if(!isset($_GET["compoid"]))
         echo '</li>';
     }
     $result->free();
+    $stmt1stPlace->close();
     echo '<li><a href="{{BASE}}compos">more compos...</a></li>';
     echo '</ul>';
 }
