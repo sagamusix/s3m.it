@@ -25,15 +25,15 @@
  
 require_once('util.php');
  
-$result = mysql_query("
+$result = $mysqli->query('
 SELECT `author`, COUNT(*) AS `num_compos`, SUM(`points`) AS `total_points`, AVG(`place`) AS `avg_place`
     FROM `entries`
     GROUP BY `author`
     ORDER BY `total_points` DESC
-") or die('query failed');
+') or die('query failed');
 
 $i = 0;
-while($row = mysql_fetch_assoc($result))
+while($row = $result->fetch_assoc())
 {
     if($row['avg_place'] == '')
     {
@@ -49,6 +49,7 @@ while($row = mysql_fetch_assoc($result))
         <td>' . $row['avg_place'] . '</td>
         </tr>';
 }
+$result->free();
 
 ?>
 </tbody>
@@ -71,16 +72,16 @@ while($row = mysql_fetch_assoc($result))
 <tbody>
 <?php
 
-$result = mysql_query("
+$result = $mysqli->query('
 SELECT `author`, `filename`, `title`, `points`, `place`, `name`, `entries`.`idcompo` AS `idcompo`
     FROM `entries`, `compos`
     WHERE `entries`.`idcompo` = `compos`.`idcompo`
     AND `points` IS NOT NULL
     ORDER BY `points` DESC
     LIMIT 0, 10
-") or die('query failed');
+') or die('query failed');
 
-while($row = mysql_fetch_assoc($result))
+while($row = $result->fetch_assoc())
 {
     echo '<tr><td>', $row['points'], '</td>
         <td>', ordinalize($row['place']), '</td>
@@ -89,6 +90,7 @@ while($row = mysql_fetch_assoc($result))
         <td><a href="{{BASE}}compo/', $row['idcompo'], '">', htmlspecialchars($row['name']), '</a></td>
         </tr>';
 }
+$result->free();
 
 ?>
 </tbody>
@@ -107,22 +109,23 @@ while($row = mysql_fetch_assoc($result))
 <tbody>
 <?php
 
-$result = mysql_query("
+$result = $mysqli->query('
 SELECT `author`, COUNT(*) AS `num`, (SELECT COUNT(*) FROM `entries` WHERE `author` = `e`.`author` AND `place` = 1 AND `date` > DATE_SUB(NOW(), INTERVAL 1 MONTH)) AS `num_recent`
     FROM `entries` AS `e`
     WHERE `place` = 1
     GROUP BY `author`
     ORDER BY `num` DESC
     LIMIT 0, 10
-") or die('query failed');
+') or die('query failed');
 
-while($row = mysql_fetch_assoc($result))
+while($row = $result->fetch_assoc())
 {
     echo '<tr><td>', htmlspecialchars($row['author']), '</td>
         <td>', $row['num'], '</td>
         <td>', $row['num_recent'], '</td>
         </tr>';
 }
+$result->free();
 
 ?>
 </tbody>
@@ -141,16 +144,16 @@ while($row = mysql_fetch_assoc($result))
 </thead>
 <tbody>
 <?php
-$result = mysql_query("
+$result = $mysqli->query('
 SELECT COUNT(*) AS `num`, SUM(`points`) AS `points`, `name`, `entries`.`idcompo` AS `idcompo`, `start_date`, DATEDIFF(NOW(), `start_date`) AS `age`
     FROM `entries`, `compos`
     WHERE `entries`.`idcompo` = `compos`.`idcompo`
     GROUP BY `entries`.`idcompo`
     ORDER BY `num` DESC, `points` DESC
     LIMIT 0, 10
-") or die('query failed');
+') or die('query failed');
 
-while($row = mysql_fetch_assoc($result))
+while($row = $result->fetch_assoc())
 {
     echo '<tr><td>', $row['num'], '</td>
         <td>', $row['points'], '</td>
@@ -158,6 +161,8 @@ while($row = mysql_fetch_assoc($result))
         <td title="', $row['start_date'], '">', $row['age'], ' days ago</td>
         </tr>';
 }
+$result->free();
+
 ?>
 </tbody>
 </table>

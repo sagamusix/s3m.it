@@ -25,15 +25,15 @@ if(!defined("COMPOMANAGER"))
     die("hacking attempt");
 }
 
-$result = mysql_query("
+$result = $mysqli->query('
 SELECT COUNT(*) AS `num`, SUM(`points`) AS `points`, `name`, `entries`.`idcompo` AS `idcompo`, `start_date`, DATEDIFF(NOW(), `start_date`) AS `age`
     FROM `entries`, `compos`
     WHERE `entries`.`idcompo` = `compos`.`idcompo` AND `downloadable` != 0
     GROUP BY `entries`.`idcompo`
     ORDER BY `start_date` DESC
-") or die('query failed');
+') or die('query failed');
 
-while($row = mysql_fetch_assoc($result))
+while($row = $result->fetch_assoc())
 {
     echo '<tr><td>', $row['num'], '</td>
         <td>', $row['points'], '</td>
@@ -41,6 +41,7 @@ while($row = mysql_fetch_assoc($result))
         <td title="', $row['start_date'], '">', $row['age'], ' days ago</td>
         </tr>';
 }
+$result->free();
 ?>
 </tbody>
 </table> 

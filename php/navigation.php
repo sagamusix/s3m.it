@@ -18,6 +18,7 @@ if(!defined("COMPOMANAGER"))
 
 function getNavigationBox()
 {
+    global $mysqli;
     if(!isset($_SESSION["idhost"]))
     {
         return '
@@ -27,13 +28,14 @@ function getNavigationBox()
         ';
     } else
     {
-        $result = mysql_query("SELECT `access_level` FROM `hosts` WHERE `idhost` = " . intval($_SESSION["idhost"])) or die("query failed");
-        if(mysql_num_rows($result) == 0)
+        $result = $mysqli->query("SELECT `access_level` FROM `hosts` WHERE `idhost` = " . intval($_SESSION["idhost"])) or die('query failed');
+        if($result->num_rows == 0)
         {
             die("hacking attempt");
         }
         
-        $row = mysql_fetch_assoc($result);
+        $row = $result->fetch_assoc();
+        $result->free();
         $access = $row["access_level"];
         
         $retval = "";

@@ -79,9 +79,11 @@ switch($_GET['action'])
 
 function editCompo($compo)
 {
+    global $mysqli;
     $compo = intval($compo);
-    $result = mysql_query("SELECT * FROM `compos` WHERE `idcompo` = $compo") or die("query failed");
-    $row = mysql_fetch_assoc($result);
+    $result = $mysqli->query("SELECT * FROM `compos` WHERE `idcompo` = $compo") or die('query failed');
+    $row = $result->fetch_assoc();
+    $result->free();
     if(!canEditCompo($row))
     {
         redirect(BASEDIR);
@@ -101,7 +103,7 @@ function editCompo($compo)
     if(viewCompoAjax($compo, FALSE))
     {
         // Unmark updated entries
-        mysql_query("UPDATE `entries` SET `altered` = 0 WHERE `idcompo` = $compo") or die("query failed");
+        $mysqli->query("UPDATE `entries` SET `altered` = 0 WHERE `idcompo` = $compo") or die('query failed');
     }
     echo '</div>';
 }
@@ -109,6 +111,7 @@ function editCompo($compo)
 
 function addCompo()
 {
+    global $mysqli;
     if(!isset($_POST["componame"]))
     {
         redirect(BASEDIR);
@@ -119,24 +122,25 @@ function addCompo()
         $_POST["componame"] = date("Y-m-d", time());
     }
 
-    $result = mysql_query("INSERT INTO `compos` (`name`, `active`, `downloadable`, `idhost`) VALUES (
-        '" . mysql_real_escape_string($_POST["componame"]) . "',
-        '" . (intval($_POST["active"]) != 0 ? 1 : 0) . "',
-        '" . (intval($_POST["active"]) != 0 ? 0 : 1) . "',
-        '" . intval($_SESSION["idhost"]) . "')
-    ") or die("query failed");
-    //         '" . (intval($_POST["downloadable"]) != 0 ? 1 : 0) . "',
+    $active = intval($_POST["active"]) != 0 ? 1 : 0;
+    $downloadable = intval($_POST["active"]) != 0 ? 0 : 1;
+    $stmt = $mysqli->prepare('INSERT INTO `compos` (`name`, `active`, `downloadable`, `idhost`) VALUES (?, ?, ?, ?)') or die('query failed');
+    $stmt->bind_param('siii', $_POST["componame"], $active, $downloadable, $_SESSION["idhost"]);
+    $stmt->execute() or die('query failed');
+    $stmt->close();
 
-    redirect(BASEDIR . "admin/compo/" . mysql_insert_id());
+    redirect(BASEDIR . "admin/compo/" . $mysqli->insert_id);
 }
 
 
 function updateCompo()
 {
+    global $mysqli;
     $compo = intval($_POST["which"]);
 
-    $result = mysql_query("SELECT * FROM `compos` WHERE `idcompo` = $compo") or die("query failed");
-    $row = mysql_fetch_assoc($result);
+    $result = $mysqli->query("SELECT * FROM `compos` WHERE `idcompo` = $compo") or die('query failed');
+    $row = $result->fetch_assoc();
+    $result->free();
     if(!canEditCompo($row))
     {
         redirect(BASEDIR);
@@ -147,17 +151,21 @@ function updateCompo()
         $_POST["componame"] = date("Y-m-d", time());
     }
     
-    mysql_query("UPDATE `compos` SET
-        `name` = '" . mysql_real_escape_string($_POST["componame"]) . "',
-        `active` = '" . (intval($_POST["active"]) != 0 ? 1 : 0) . "',
-        `downloadable` = '" . (intval($_POST["active"]) != 0 ? 0 : 1) . "'
-        WHERE `idcompo` = $compo") or die("query failed");
-    // `downloadable` = '" . (intval($_POST["downloadable"]) != 0 ? 1 : 0) . "'
+    $active = intval($_POST["active"]) != 0 ? 1 : 0;
+    $downloadable = intval($_POST["active"]) != 0 ? 0 : 1;
+    $stmt = $mysqli->prepare('UPDATE `compos` SET
+        `name` = ?,
+        `active` = ?,
+        `downloadable` = ?
+        WHERE `idcompo` = ?') or die('query failed');
+    $stmt->bind_param('siii', $_POST["componame"], $active, $downloadable, $compo);
+    $stmt->execute() or die('query failed');
+    $stmt->close();
 
     if(!$_POST["active"])
     {
         // Can't upload anymore, so get rid of any active pings.
-        mysql_query("DELETE FROM `uploading` WHERE `idcompo` = $compo") or die("query failed");
+        $mysqli->query("DELETE FROM `uploading` WHERE `idcompo` = $compo") or die('query failed');
     }
 
     // Recompress compo archive after closing compo
@@ -175,18 +183,20 @@ function updateCompo()
 
 function deleteCompo($compo, $doRedirect = TRUE)
 {
+    global $mysqli;
     $compo = intval($compo);
 
-    $result = mysql_query("SELECT * FROM `compos` WHERE `idcompo` = $compo") or die("query failed");
-    $row = mysql_fetch_assoc($result);
+    $result = $mysqli->query("SELECT * FROM `compos` WHERE `idcompo` = $compo") or die('query failed');
+    $row = $result->fetch_assoc();
+    $result->free();
     if(!canDeleteCompo($row))
     {
         redirect(BASEDIR);
     }
 
-    require("file.php");
+    require_once('php/file.php');
     deletePack($compo, FALSE);
-    mysql_query("DELETE FROM `compos` WHERE `idcompo` = $compo") or die("query failed");
+    $mysqli->query("DELETE FROM `compos` WHERE `idcompo` = $compo") or die('query failed');
 
     if($doRedirect)
     {
@@ -197,6 +207,7 @@ function deleteCompo($compo, $doRedirect = TRUE)
 
 function listCompos($user)
 {
+    global $mysqli;
     $user = intval($user);
 
     if(!canListCompos($user))
@@ -204,11 +215,11 @@ function listCompos($user)
         redirect(BASEDIR);
     }
 
-    $result = mysql_query("SELECT *, (SELECT COUNT(*) FROM `entries` B WHERE A.`idcompo` = B.`idcompo`) AS `num_entries` FROM `compos` A WHERE `idhost` = $user ORDER BY `active` DESC, `start_date` DESC") or die("query failed");
+    $result = $mysqli->query("SELECT *, (SELECT COUNT(*) FROM `entries` B WHERE A.`idcompo` = B.`idcompo`) AS `num_entries` FROM `compos` A WHERE `idhost` = $user ORDER BY `active` DESC, `start_date` DESC") or die('query failed');
 
     $active = array();
     $inactive = array();
-    while($row = mysql_fetch_assoc($result))
+    while($row = $result->fetch_assoc())
     {
         if($row["active"] == 1)
         {
@@ -218,6 +229,7 @@ function listCompos($user)
             array_push($inactive, $row);
         }
     }
+    $result->free();
 
     if(count($active))
     {
@@ -363,12 +375,14 @@ function canDeleteCompo($row)
 
 function checkCompoPings($compo, $html)
 {
+    global $mysqli;
     $compo = intval($compo);
 
     if(!$html)
     {
-        $result = mysql_query("SELECT * FROM `compos` WHERE `idcompo` = $compo") or die("query failed");
-        $row = mysql_fetch_assoc($result);
+        $result = $mysqli->query("SELECT * FROM `compos` WHERE `idcompo` = $compo") or die('query failed');
+        $row = $result->fetch_assoc();
+        $result->free();
         if(!canEditCompo($row))
         {
             redirect(BASEDIR);
@@ -381,30 +395,28 @@ function checkCompoPings($compo, $html)
     }
 
     // Upload token "timeout" is a minute (pingback should happen every half minute, so this should be more than enough).
-    mysql_query("DELETE FROM `uploading` WHERE `start` < " . (time() - 60)) or die("query failed");
+    $mysqli->query("DELETE FROM `uploading` WHERE `start` < " . (time() - 60)) or die('query failed');
 
-    $result = mysql_query("SELECT * FROM `uploading` WHERE `idcompo` = $compo ORDER BY `author` ASC") or die("query failed");
+    $result = $mysqli->query("SELECT * FROM `uploading` WHERE `idcompo` = $compo ORDER BY `author` ASC") or die('query failed');
     $first = TRUE;
-    if(mysql_num_rows($result))
+    while($row = $result->fetch_assoc())
     {
-        while($row = mysql_fetch_assoc($result))
+        if(!$first)
         {
-            if(!$first)
-            {
-                echo $delim;
-            } else
-            {
-                if($html)
-                    echo '<p id="uploaders">Currently uploading: ';
-            }
-
+            echo $delim;
+        } else
+        {
             if($html)
-                echo htmlspecialchars($row['author']);
-            else
-                echo $row['author'];
-            $first = FALSE;
+                echo '<p id="uploaders">Currently uploading: ';
         }
+
+        if($html)
+            echo htmlspecialchars($row['author']);
+        else
+            echo $row['author'];
+        $first = FALSE;
     }
+    $result->free();
 
     if($html)
     {
@@ -418,9 +430,11 @@ function checkCompoPings($compo, $html)
 
 function viewCompoAjax($compo, $ajax)
 {
+    global $mysqli;
     $compo = intval($compo);
-    $result = mysql_query("SELECT * FROM `compos` WHERE `idcompo` = $compo") or die("query failed");
-    $row = mysql_fetch_assoc($result);
+    $result = $mysqli->query("SELECT * FROM `compos` WHERE `idcompo` = $compo") or die('query failed');
+    $row = $result->fetch_assoc();
+    $result->free();
     $downloadable = $row["downloadable"];
     if(!canEditCompo($row))
     {
@@ -434,15 +448,15 @@ function viewCompoAjax($compo, $ajax)
 
     $alteredFiles = FALSE;
     $lastUpdate = 0;
-    $result = mysql_query("SELECT * FROM `entries` WHERE `idcompo` = $compo ORDER BY `date` ASC") or die("query failed");
+    $result = $mysqli->query("SELECT * FROM `entries` WHERE `idcompo` = $compo ORDER BY `date` ASC") or die('query failed');
 
     // Show list of uploading people
     checkCompoPings($compo, TRUE);
 
-    if(mysql_num_rows($result))
+    if($result->num_rows)
     {
         echo '<ul id="file-list">';
-        while($row = mysql_fetch_assoc($result))
+        while($row = $result->fetch_assoc())
         {
             echo '<li>
                 <span class="add-date">';
@@ -462,6 +476,7 @@ function viewCompoAjax($compo, $ajax)
 
             $lastUpdate = $row['date'];
         }
+        $result->free();
         echo '<li><a href="', BASEDIR, 'admin/fetchpack/', $compo, '"><img src="', BASEDIR, 'img/compress.png" width="16" height="16" alt="" /> Download the whole pack (admin only)</a></li>';
         echo "</ul>";
         echo '<p><a href="', BASEDIR, 'admin/voting/', $compo, '"><img src="', BASEDIR, 'img/table.png" width="16" height="16" alt="" /> Enter <strong>votes</strong></a> using lazyvote</p>';

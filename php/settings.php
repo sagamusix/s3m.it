@@ -53,19 +53,18 @@ session_start() or die("Can't initialize session, aborting...");
 
 function db_connect()
 {
-    global $db_link;
-    if($db_link)
+    global $mysqli;
+    if($mysqli)
     {
         db_disconnect();
     }
-    $db_link = @mysql_connect(MYSQL_HOST, MYSQL_USER, MYSQL_PASS) or die("Can't connect to the database!");
-    mysql_select_db(MYSQL_DATABASE) or die("Can't connect to the database!");
+    $mysqli = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASS, MYSQL_DATABASE) or die('Cannot connect to the database!');
 }
 
 function db_disconnect()
 {
-    global $db_link;
-    mysql_close($db_link);
+    global $mysqli;
+    $mysqli->close();
 }
 
 
@@ -75,6 +74,3 @@ function redirect($target)
     db_disconnect();
     die();
 }
-
-
-?>

@@ -6,6 +6,8 @@
  * Purpose: Upload form for compo participants.
  *
  * Functions:
+ * uploadForm()
+ *     Displays the upload form for a given compo
  * listHosts()
  *     Displays a list of open compos. 
  *
@@ -24,12 +26,13 @@ if(!defined("COMPOMANAGER"))
 
 $compos = array();
 $compoids = array();
-$result = mysql_query("SELECT * FROM `compos`, `hosts` WHERE (`active` != 0) AND (`compos`.`idhost` = `hosts`.`idhost`) ORDER BY `start_date` DESC") or die("query failed");
-while($row = mysql_fetch_assoc($result))
+$result = $mysqli->query('SELECT * FROM `compos`, `hosts` WHERE (`active` != 0) AND (`compos`.`idhost` = `hosts`.`idhost`) ORDER BY `start_date` DESC') or die('query failed');
+while($row = $result->fetch_assoc())
 {
     array_push($compos, $row);
     array_push($compoids, $row["idcompo"]);
 }
+$result->free();
 $numCompos = count($compoids);
 
 if(isset($_GET["compoid"]) && in_array($_GET["compoid"], $compoids))
@@ -38,7 +41,7 @@ if(isset($_GET["compoid"]) && in_array($_GET["compoid"], $compoids))
     {
         if($compo["idcompo"] == $_GET["compoid"])
         {
-            uploadform($compo);
+            uploadForm($compo);
             break;
         }
     }
@@ -51,7 +54,7 @@ if(isset($_GET["compoid"]) && in_array($_GET["compoid"], $compoids))
 <?php
 } else if($numCompos == 1)
 {
-    uploadform($compos[0]);
+    uploadForm($compos[0]);
 } else if($numCompos > 0)
 {
     listHosts();
@@ -70,26 +73,26 @@ if(!isset($_GET["compoid"]))
     echo '<h2>Check out the latest compos</h2>
         <ul>';
 
-    $result = mysql_query("
+    $result = $mysqli->query('
     SELECT `name`, `idcompo`, `downloadable`
         FROM `compos`
         WHERE `downloadable` != 0
         ORDER BY `start_date` DESC
         LIMIT 0, 5
-    ") or die('query failed');
+    ') or die('query failed');
     
-    while($row = mysql_fetch_assoc($result))
+    while($row = $result->fetch_assoc())
     {
         echo '<li><a href="{{BASE}}compo/', $row['idcompo'], '">', htmlspecialchars($row['name']), '</a>';
 
         // Display winners
-        $result2 = mysql_query("SELECT `author` FROM `entries` WHERE (`idcompo` = {$row['idcompo']}) AND (`place` = 1)") or die("query failed");
-        $winners = mysql_num_rows($result2);
+        $result2 = $mysqli->query("SELECT `author` FROM `entries` WHERE (`idcompo` = {$row['idcompo']}) AND (`place` = 1)") or die('query failed');
+        $winners = $result2->num_rows;
         if($winners != 0)
         {
             echo ' (compo winner', ($winners != 1 ? 's' : ''), ': <strong>';
             $first = true;
-            while($row = mysql_fetch_assoc($result2))
+            while($row = $result2->fetch_assoc())
             {
                 if(!$first)
                 {
@@ -100,14 +103,16 @@ if(!isset($_GET["compoid"]))
             }
             echo '</strong>)';
         }
+        $result2->free();
         echo '</li>';
     }
+    $result->free();
     echo '<li><a href="{{BASE}}compos">more compos...</a></li>';
     echo '</ul>';
 }
 
 
-function uploadform($compo)
+function uploadForm($compo)
 {
 
     if(intval($compo["active"]) != 0)

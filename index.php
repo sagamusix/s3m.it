@@ -12,15 +12,16 @@ db_connect();
 // Set up right management
 if(isset($_SESSION['idhost']))
 {
-    $result = mysql_query("SELECT `access_level` FROM `hosts` WHERE `idhost` = " . intval($_SESSION['idhost'])) or die('query failed');
-    if(mysql_num_rows($result) == 0)
+    $result = $mysqli->query("SELECT `access_level` FROM `hosts` WHERE `idhost` = " . intval($_SESSION['idhost'])) or die('query failed');
+    if($result->num_rows == 0)
     {
         define('ACCESS', ACCESS_GUEST);
     } else
     {
-        $row = mysql_fetch_assoc($result);
+        $row = $result->fetch_assoc();
         define('ACCESS', $row['access_level']);
     }
+    $result->free();
 } else
 {
     define('ACCESS', ACCESS_GUEST);

@@ -90,20 +90,25 @@ switch($_GET["action"])
 
 function processUpload()
 {
+    global $mysqli;
     $compo = intval($_POST["compo"]);
 
     if(isset($_POST["token"]) && $_POST["token"] > 0)
     {
         // Remove upload token
-        mysql_query("DELETE FROM `uploading` WHERE
-            `idupload` = '" . intval($_POST["token"]) . "' AND
-            `author` = '" . mysql_real_escape_string($_POST["author"]) . "' AND
-            `idcompo` = '" . $compo . "'
-        ") or die("query failed");
+        $stmt = $mysqli->prepare('DELETE FROM `uploading` WHERE
+            `idupload` = ? AND
+            `author` = ? AND
+            `idcompo` = ?
+        ') or die('query failed');
+        $stmt->bind_param('isi', intval($_POST["token"]), $_POST["author"], $compo);
+        $stmt->execute() or die('query failed');
     }
 
-    $result = mysql_query("SELECT * FROM `compos` WHERE (`idcompo` = $compo) AND (`active` != 0)") or die("query failed");
-    if(mysql_num_rows($result) == 0)
+    $result = $mysqli->query("SELECT * FROM `compos` WHERE (`idcompo` = $compo) AND (`active` != 0)") or die('query failed');
+    $isClosed = ($result->num_rows == 0); 
+    $result->free();
+    if($isClosed)
     {
         uploadError("Sorry, but uploading for this compo is closed.");
         return;
@@ -145,24 +150,31 @@ function processUpload()
     }
 
     // Get mod title
-    $modTitle = mysql_real_escape_string(getModTitle($_FILES['userfile']['tmp_name'], $db_filename));
+    $modTitle = getModTitle($_FILES['userfile']['tmp_name'], $db_filename);
 
     $insert = TRUE;
     // duplicate filename?
-    $result = mysql_query("SELECT * FROM `entries` WHERE (`idcompo` = $compo) AND (`filename` = '" . mysql_real_escape_string($db_filename) . "')") or die("query failed");
-    if(mysql_num_rows($result) > 0)
+    $stmt = $mysqli->prepare('SELECT * FROM `entries` WHERE (`idcompo` = ?) AND (`filename` = ?)') or die('query failed');
+    $stmt->bind_param('is', $compo, $db_filename);
+    $stmt->execute() or die('query failed');
+    $result = $stmt->get_result();
+
+    if($result->num_rows > 0)
     {
-        $row = mysql_fetch_assoc($result);
+        $row = $result->fetch_assoc();
         //if(isset($_SESSION["upload-" . $row["identry"]]) && $_SESSION["upload-" . $row["identry"]] == $_POST["author"])
         if($row["author"] == $_POST["author"])
         {
             // replace file
             $entryID = $row["identry"];
-            mysql_query("UPDATE `entries` SET
-                `title` = '$modTitle',
+            $stmtRep = $mysqli->prepare('UPDATE `entries` SET
+                `title` = ?,
                 `altered` = 1,
                 `date` = CURRENT_TIMESTAMP
-                WHERE `identry` = $entryID") or die("query failed");
+                WHERE `identry` = ?') or die('query failed');
+            $stmtRep->bind_param('si', $modTitle, $entryID);
+            $stmtRep->execute() or die('query failed');
+            $stmtRep->close();
 
             @unlink(UPLOAD_DIR . $entryID);
             $arc->PrepareReplace($db_filename);
@@ -174,17 +186,16 @@ function processUpload()
             $db_filename = substr(dechex(mt_rand(0, 255)) . '-' . $db_filename, 0, MAX_FILENAME_LENGTH);
         }
     }
+    $result->free();
+    $stmt->close();
 
     if($insert)
     {
-        mysql_query("INSERT INTO `entries` (`author`, `filename`, `title`, `idcompo`, `altered`) VALUES (
-            '" . mysql_real_escape_string($_POST["author"]) . "',
-            '" . mysql_real_escape_string($db_filename) . "',
-            '$modTitle',
-            '" . $compo . "',
-            '0'
-            )") or die("query failed");
-        $entryID = mysql_insert_id();
+        $stmt = $mysqli->prepare('INSERT INTO `entries` (`author`, `filename`, `title`, `idcompo`, `altered`) VALUES (?, ?, ?, ?, 0)') or die('query failed');
+        $stmt->bind_param('sssi', $_POST["author"], $db_filename, $modTitle, $compo);
+        $stmt->execute() or die('query failed');
+        $entryID = $stmt->insert_id;
+        $stmt->close();
     }
 
     $_SESSION["upload-$entryID"] = $_POST["author"];
@@ -225,6 +236,7 @@ function uploadError($message)
 
 function processUploadPing()
 {
+    global $mysqli;
     if(!isset($_POST["author"]) || !isset($_POST["compo"]) || !isset($_POST["token"]) || !isset($_POST["cancel"]))
     {
         return;
@@ -237,31 +249,36 @@ function processUploadPing()
         if($_POST["cancel"] == 1)
         {
             // Remove token (f.e. when client closes window)
-            mysql_query("DELETE FROM `uploading` WHERE
-                `idupload` = '" . intval($_POST["token"]) . "' AND
-                `author` = '" . mysql_real_escape_string($_POST["author"]) . "' AND
-                `idcompo` = '" . intval($_POST["compo"]) . "'
-            ") or die("query failed");
+            $stmt = $mysqli->prepare('DELETE FROM `uploading` WHERE
+                `idupload` = ? AND
+                `author` = ? AND
+                `idcompo` = ?
+            ') or die('query failed');
+            $stmt->bind_param('isi', intval($_POST["token"]), $_POST["author"], intval($_POST["compo"]));
+            $stmt->execute() or die('query failed');
+            $stmt->close();
         } else
         {
             // Update token
-            mysql_query("UPDATE `uploading` SET
-                `start` = '" . time() . "'
+            $stmt = $mysqli->prepare('UPDATE `uploading` SET
+                `start` = ?
                 WHERE
-                `idupload` = '" . intval($_POST["token"]) . "' AND
-                `author` = '" . mysql_real_escape_string($_POST["author"]) . "' AND
-                `idcompo` = '" . intval($_POST["compo"]) . "'
-            ") or die("query failed");
+                `idupload` = ? AND
+                `author` = ? AND
+                `idcompo` = ?
+            ') or die('query failed');
+            $stmt->bind_param('iisi', time(), intval($_POST["token"]), $_POST["author"], intval($_POST["compo"]));
+            $stmt->execute() or die('query failed');
+            $stmt->close();
         }
         echo intval($_POST["token"]);
     } else
     {
-        mysql_query("INSERT INTO `uploading` (`author`, `start`, `idcompo`) VALUES (
-            '" . mysql_real_escape_string($_POST["author"]) . "',
-            '" . time() . "',
-            '" . intval($_POST["compo"]) . "'
-            )") or die("query failed");
-        echo mysql_insert_id();
+        $stmt = $mysqli->prepare('INSERT INTO `uploading` (`author`, `start`, `idcompo`) VALUES (?, ?, ?)');
+        $stmt->bind_param('sii', $_POST["author"], time(), intval($_POST["compo"]));
+        $stmt->execute() or die('query failed');
+        echo $stmt->insert_id;
+        $stmt->close();
     }
     $progressKey = ini_get('session.upload_progress.prefix') . @$_POST[ini_get('session.upload_progress.name')];
     if(isset($_SESSION[$progressKey]) && isset($_SESSION[$progressKey]["content_length"]) && isset($_SESSION[$progressKey]["bytes_processed"]))
@@ -286,6 +303,7 @@ function safeFilename($filename)
 
 function fetchFile($file)
 {
+    global $mysqli;
     $file = intval($file);
 
     if(!canFetchFile($file))
@@ -293,8 +311,9 @@ function fetchFile($file)
         redirect(BASEDIR);
     }
 
-    $result = mysql_query("SELECT * FROM `entries` WHERE `identry` = $file") or die("query failed");
-    $row = mysql_fetch_assoc($result);
+    $result = $mysqli->query("SELECT * FROM `entries` WHERE `identry` = $file") or die('query failed');
+    $row = $result->fetch_assoc();
+    $result->free();
 
     $arc = new ArchiveFile(UPLOAD_DIR . $row["idcompo"]);
     if($arc->Open() === FALSE)
@@ -311,6 +330,7 @@ function fetchFile($file)
 
 function deleteFile($file)
 {
+    global $mysqli;
     $file = intval($file);
 
     if(!canDeleteFile($file))
@@ -318,8 +338,9 @@ function deleteFile($file)
         redirect(BASEDIR);
     }
 
-    $result = mysql_query("SELECT * FROM `entries` WHERE `identry` = $file") or die("query failed");
-    $row = mysql_fetch_assoc($result);
+    $result = $mysqli->query("SELECT * FROM `entries` WHERE `identry` = $file") or die('query failed');
+    $row = $result->fetch_assoc();
+    $result->free();
 
     $arc = new ArchiveFile(UPLOAD_DIR . $row["idcompo"]);
     if($arc->Open() === FALSE)
@@ -331,13 +352,14 @@ function deleteFile($file)
     $arc->Close();
 
     @unlink(UPLOAD_DIR . $file);
-    mysql_query("DELETE FROM `entries` WHERE `identry` = $file") or die("query failed");
+    $mysqli->query("DELETE FROM `entries` WHERE `identry` = $file") or die('query failed');
 
     redirect(BASEDIR . "admin/compo/" . $row["idcompo"]);
 }
 
 function fetchResults($compo)
 {
+    global $mysqli;
     $compo = intval($compo);
 
     /*if(!canFetchPack($compo))
@@ -350,8 +372,9 @@ function fetchResults($compo)
 	if(!file_exists($txtName))
 		redirect(BASEDIR);
 
-    $result = mysql_query("SELECT `name` FROM `compos` WHERE `idcompo` = $compo") or die("query failed");
-    $row = mysql_fetch_assoc($result);
+    $result = $mysqli->query("SELECT `name` FROM `compos` WHERE `idcompo` = $compo") or die('query failed');
+    $row = $result->fetch_assoc();
+    $result->free();
     $compoName = safeFilename($row["name"]);
 
     ob_end_clean();
@@ -365,6 +388,7 @@ function fetchResults($compo)
 
 function fetchPack($compo, $file = '')
 {
+    global $mysqli;
     $compo = intval($compo);
 
     if(!canFetchPack($compo))
@@ -382,8 +406,9 @@ function fetchPack($compo, $file = '')
 
     $arcName = ArchiveFile::FileName(UPLOAD_DIR . $compo);
     
-    $result = mysql_query("SELECT `name` FROM `compos` WHERE `idcompo` = $compo") or die("query failed");
-    $row = mysql_fetch_assoc($result);
+    $result = $mysqli->query("SELECT `name` FROM `compos` WHERE `idcompo` = $compo") or die('query failed');
+    $row = $result->fetch_assoc();
+    $result->free();
     $compoName = safeFilename($row["name"]);
 
     ob_end_clean();
@@ -397,6 +422,7 @@ function fetchPack($compo, $file = '')
 
 function deletePack($compo, $doRedirect = TRUE)
 {
+    global $mysqli;
     $compo = intval($compo);
 
     if(!canDeletePack($compo))
@@ -404,14 +430,15 @@ function deletePack($compo, $doRedirect = TRUE)
         redirect(BASEDIR);
     }
 
-    $result = mysql_query("SELECT * FROM `entries` WHERE `idcompo` = $compo") or die("query failed");
-    while($row = mysql_fetch_assoc($result))
+    $result = $mysqli->query("SELECT * FROM `entries` WHERE `idcompo` = $compo") or die('query failed');
+    while($row = $result->fetch_assoc())
     {
         @unlink(UPLOAD_DIR . $row["identry"]);
     }
+    $result->free();
     @unlink(UPLOAD_DIR . $compo . ".7z");
 
-    mysql_query("DELETE FROM `entries` WHERE `idcompo` = $compo") or die("query failed");
+    $mysqli->query("DELETE FROM `entries` WHERE `idcompo` = $compo") or die('query failed');
 
     if($doRedirect)
     {
@@ -422,22 +449,24 @@ function deletePack($compo, $doRedirect = TRUE)
 
 function showCompoDirectory($compo)
 {
+    global $mysqli;
     $compo = intval($compo);
     if(canFetchPack($compo))
     {
-        $result = mysql_query("SELECT `compos`.`name` AS `name`, `hosts`.`hostname` AS `hostname` FROM `compos`, `hosts` WHERE (`idcompo` = $compo) AND (`compos`.`idhost` = `hosts`.`idhost`)") or die("query failed");
-        $row = mysql_fetch_assoc($result);
+        $result = $mysqli->query("SELECT `compos`.`name` AS `name`, `hosts`.`hostname` AS `hostname` FROM `compos`, `hosts` WHERE (`idcompo` = $compo) AND (`compos`.`idhost` = `hosts`.`idhost`)") or die('query failed');
+        $row = $result->fetch_assoc();
+        $result->free();
 
         echo '<h2>Compo details for &quot;', htmlspecialchars($row["name"]), '&quot;</h2>';
         echo '<p>Compo host: <strong>', htmlspecialchars($row["hostname"]), '</strong></p>';
 
-        $result = mysql_query("SELECT `author` FROM `entries` WHERE (`idcompo` = $compo) AND (`place` = 1)") or die("query failed");
-        $winners = mysql_num_rows($result);
+        $result = $mysqli->query("SELECT `author` FROM `entries` WHERE (`idcompo` = $compo) AND (`place` = 1)") or die('query failed');
+        $winners = $result->num_rows;
         if($winners != 0)
         {
             echo '<p>Compo winner', ($winners != 1 ? 's' : ''), ': <strong>';
             $first = true;
-            while($row = mysql_fetch_assoc($result))
+            while($row = $result->fetch_assoc())
             {
                 if(!$first)
                 {
@@ -448,6 +477,7 @@ function showCompoDirectory($compo)
             }
             echo '</strong></p>';
         }
+        $result->free();
 
         echo '<ul>';
         if(file_exists(UPLOAD_DIR . $compo . '.7z'))
@@ -460,8 +490,8 @@ function showCompoDirectory($compo)
         }
         echo '</ul>';
         
-        $result = mysql_query("SELECT * FROM `entries` WHERE (`idcompo` = $compo) AND (`points` IS NOT NULL) ORDER BY `points` DESC, `author` ASC") or die("query failed");
-        if(mysql_num_rows($result) != 0)
+        $result = $mysqli->query("SELECT * FROM `entries` WHERE (`idcompo` = $compo) AND (`points` IS NOT NULL) ORDER BY `points` DESC, `author` ASC") or die('query failed');
+        if($result->num_rows != 0)
         {
             echo '<script type="text/javascript">var basepath = "{{BASE}}";</script>';
             echo '<script type="text/javascript" src="{{BASE}}js/chiptune2.js"></script>';
@@ -476,7 +506,7 @@ function showCompoDirectory($compo)
                     </tr>
                 </thead>
                 <tbody>';
-            while($row = mysql_fetch_assoc($result))
+            while($row = $result->fetch_assoc())
             {
                 echo '<tr><td>', $row['place'], ($row['place'] <= 3 ? ' <img src="{{BASE}}img/medal' . $row['place'] . '.png" width="16" height="16" alt="" />' : ''), '</td>
                     <td>', htmlspecialchars($row['author']), '</td>
@@ -486,6 +516,7 @@ function showCompoDirectory($compo)
             }
             echo '</tbody></table>';
         }
+        $result->free();
     } else
     {
         redirect(BASEDIR);
@@ -501,22 +532,22 @@ function canFetchFile($file)
 
 function canDeleteFile($file)
 {
+    global $mysqli;
     if(ACCESS == ACCESS_FULLADMIN)
     {
         return true;
     }
     $file = intval($file);
-    $result = mysql_query("SELECT * FROM `compos` A, `entries` B WHERE (B.`identry` = $file) AND (A.`idcompo` = B.`idcompo`) AND (A.`idhost` = " . intval($_SESSION["idhost"]) . ")") or die("query failed");
-    if(mysql_num_rows($result) > 0)
-    {
-        return true;
-    }
-    return false;
+    $result = $mysqli->query("SELECT * FROM `compos` A, `entries` B WHERE (B.`identry` = $file) AND (A.`idcompo` = B.`idcompo`) AND (A.`idhost` = " . intval($_SESSION["idhost"]) . ")") or die('query failed');
+    $canDelete = ($result->num_rows > 0);
+    $result->free();
+    return $canDelete;
 }
 
 
 function canFetchPack($compo)
 {
+    global $mysqli;
     $compo = intval($compo);
 
     if(canDeletePack($compo))
@@ -525,23 +556,24 @@ function canFetchPack($compo)
     } else
     {
         // guest mode
-        $result = mysql_query("SELECT * FROM `compos` WHERE (`idcompo` = $compo) AND (`downloadable` != '0')") or die("query failed");
-        return (mysql_num_rows($result) > 0);
+        $result = $mysqli->query("SELECT * FROM `compos` WHERE (`idcompo` = $compo) AND (`downloadable` != '0')") or die('query failed');
+        $canFetch = ($result->num_rows > 0);
+        $result->free();
+        return $canFetch;
     }
 }
 
 
 function canDeletePack($compo)
 {
+    global $mysqli;
     if(ACCESS == ACCESS_FULLADMIN)
     {
         return true;
     }
     $compo = intval($compo);
-    $result = mysql_query("SELECT * FROM `compos` WHERE (`idcompo` = $compo) AND (`idhost` = " . intval(@$_SESSION["idhost"]) . ")") or die("query failed");
-    if(mysql_num_rows($result) > 0)
-    {
-        return true;
-    }
-    return false;
+    $result = $mysqli->query("SELECT * FROM `compos` WHERE (`idcompo` = $compo) AND (`idhost` = " . intval(@$_SESSION["idhost"]) . ")") or die('query failed');
+    $canDelete = ($result->num_rows > 0);
+    $result->free();
+    return $canDelete;
 }

@@ -43,19 +43,24 @@ if(isset($_POST['what']) && $_POST['what'] != '')
     $what = str_replace('_', '\_', $what);
     $what = str_replace('*', '%', $what);
     $what = str_replace('?', '_', $what);
-    $what = "'%" . mysql_real_escape_string($what) . "%'";
+    $what = "%$what%";
     
     if(isset($_POST['componame']))
     {
-        $result = mysql_query("
+        
+        $stmt = $mysqli->prepare('
             SELECT COUNT(*) AS `num`, SUM(`points`) AS `points`, `name`, `entries`.`idcompo` AS `idcompo`, DATEDIFF(NOW(), `start_date`) AS `age`
                 FROM `entries`, `compos`
                 WHERE `entries`.`idcompo` = `compos`.`idcompo` AND `compos`.`active` = 0 
-                AND `compos`.`name` LIKE $what 
+                AND `compos`.`name` LIKE ? 
                 GROUP BY `entries`.`idcompo`
                 ORDER BY `num` DESC, `points` DESC
-            ") or die('query failed');
-        if(mysql_num_rows($result) > 0)
+        ') or die('query failed');
+        $stmt->bind_param('s', $what);
+        $stmt->execute() or die('query failed');
+        $result = $stmt->get_result();
+
+        if($result->num_rows > 0)
         {
 ?>
         <h2>Compos</h2>
@@ -71,7 +76,7 @@ if(isset($_POST['what']) && $_POST['what'] != '')
 </thead>
 <tbody>
 <?php
-            while($row = mysql_fetch_assoc($result))
+            while($row = $result->fetch_assoc())
             {
                 if($row['points'] === NULL) $row['author'] = 'n/a';
                 echo '<tr><td>', $row['num'], '</td>
@@ -85,22 +90,44 @@ if(isset($_POST['what']) && $_POST['what'] != '')
 </table>
 <?php
         }
+        $result->free();
+        $stmt->close();
     }
 
     if(isset($_POST['songname']) || isset($_POST['author']))
     {
-        $query = "
+        $paramType = '';
+        
+        $query = '
         SELECT `author`, `filename`, `title`, `points`, `place`, `name`, `entries`.`idcompo` AS `idcompo`
             FROM `entries`, `compos`
             WHERE `entries`.`idcompo` = `compos`.`idcompo` AND `compos`.`active` = 0
-            AND (0";
-        if(isset($_POST['songname'])) $query .= " OR `title` LIKE $what OR `filename` LIKE $what";
-        if(isset($_POST['author'])) $query .= " OR (`author` LIKE $what AND `points` IS NOT NULL)";
-        $query .= ")
-            ORDER BY `entries`.`idcompo` DESC, `title` ASC";
-        $result = mysql_query($query) or die('query failed');
+            AND (0';
+        if(isset($_POST['songname']))
+        {
+            $query .= " OR `title` LIKE ? OR `filename` LIKE ?";
+            $paramType .= 'ss';
+        }
+        if(isset($_POST['author']))
+        {
+            $query .= " OR (`author` LIKE ? AND `points` IS NOT NULL)";
+            $paramType .= 's';
+        }
+        $query .= ')
+            ORDER BY `entries`.`idcompo` DESC, `title` ASC';
 
-        if(mysql_num_rows($result) > 0)
+        $params[] = & $paramType;
+        for($i = strlen($paramType); $i > 0; $i--)
+        {
+            $params[] = & $what;
+        }
+
+        $stmt = $mysqli->prepare($query) or die('query failed');
+        call_user_func_array(array($stmt, 'bind_param'), $params);
+        $stmt->execute() or die('query failed');
+        $result = $stmt->get_result();
+
+        if($result->num_rows > 0)
         {
 ?>
 <h2>Entries</h2>
@@ -120,7 +147,7 @@ if(isset($_POST['what']) && $_POST['what'] != '')
 <tbody>
 <?php
 
-            while($row = mysql_fetch_assoc($result))
+            while($row = $result->fetch_assoc())
             {
                 if($row['points'] === NULL) $row['author'] = 'n/a';
                 echo '<tr><td>', $row['points'], '</td>
@@ -136,6 +163,8 @@ if(isset($_POST['what']) && $_POST['what'] != '')
 </table>
 <?php
         }
+        $result->free();
+        $stmt->close();
     }
 }
 

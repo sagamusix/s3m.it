@@ -28,9 +28,12 @@ if(isset($_GET["logout"]))
 
 if(isset($_POST["login"]) && ($_POST["login"] == $oldSession) && isset($_POST["hostname"]) && isset($_POST["password"]))
 {
-    $result = mysql_query("SELECT * FROM `hosts` WHERE `hostname` = '" . mysql_real_escape_string($_POST["hostname"]) . "'") or die("query failed");
-    $row = mysql_fetch_assoc($result);
-    if(mysql_num_rows($result) == 0 || makepassword($_POST["password"], $row["password"]) != $row["password"])
+    $stmt = $mysqli->prepare('SELECT * FROM `hosts` WHERE `hostname` = ?') or die('query failed');
+    $stmt->bind_param('s', $_POST["hostname"]);
+    $stmt->execute() or die('query failed');
+    $result = $stmt->get_result();
+    $row = $result->fetch_assoc();
+    if($result->num_rows == 0 || makepassword($_POST["password"], $row["password"]) != $row["password"])
     {
         echo "<p>User does not exist or wrong password!</p>";
     } else
@@ -38,6 +41,8 @@ if(isset($_POST["login"]) && ($_POST["login"] == $oldSession) && isset($_POST["h
         $_SESSION["idhost"] = $row["idhost"];
         redirect(BASEDIR . "admin/compo");
     }
+    $result->free();
+    $stmt->close();
 }
 
 ?>

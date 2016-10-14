@@ -61,15 +61,18 @@ switch($_GET["action"])
 
 function editUser($user)
 {
+    global $mysqli;
     $user = intval($user);
 
-    $result = mysql_query("SELECT * FROM `hosts` WHERE `idhost` = $user") or die("query failed");
-    if(mysql_num_rows($result) == 0)
+    $result = $mysqli->query("SELECT * FROM `hosts` WHERE `idhost` = $user") or die('query failed');
+    if($result->num_rows == 0)
     {
+        $result->free();
         redirect(BASEDIR);
     }
 
-    $row = mysql_fetch_assoc($result);
+    $row = $result->fetch_assoc();
+    $result->free();
     if(canEditUser($row))
     {
         echo "<h2>Edit user details for ", htmlspecialchars($row["hostname"]), "</h2>";
@@ -87,6 +90,7 @@ function editUser($user)
 
 function addUser()
 {
+    global $mysqli;
     if(ACCESS < ACCESS_USERDB)
     {
         redirect(BASEDIR);
@@ -94,41 +98,49 @@ function addUser()
     
     if($_POST["hostname"] == "")
     {
-        redirect(BASEDIR . "admin/users/1");
+        redirect(BASEDIR . "admin/users/1#addusertable");
     }
 
     if($_POST["password"] == "" || $_POST["password"] != $_POST["password_rep"])
     {
-        redirect(BASEDIR . "admin/users/2");
+        redirect(BASEDIR . "admin/users/2#addusertable");
     }
     
     if(!canAddRole($_POST["role"]))
     {
-        redirect(BASEDIR . "admin/users/3");
+        redirect(BASEDIR . "admin/users/3#addusertable");
     }
 
-    $result = mysql_query("SELECT * FROM `hosts` WHERE `hostname` = '" . mysql_real_escape_string($_POST["hostname"]). "'") or die("query failed");
-    if(mysql_num_rows($result) > 0)
+    $stmt = $mysqli->prepare('SELECT * FROM `hosts` WHERE `hostname` = ?') or die('query failed');
+    $stmt->bind_param('s', $_POST["hostname"]);
+    $stmt->execute() or die('query failed');
+    $result = $stmt->get_result();
+    $userExists = ($result->num_rows > 0);
+    $result->free();
+    $stmt->close();
+    
+    if($userExists)
     {
-        redirect(BASEDIR . "admin/users/4");
+        redirect(BASEDIR . "admin/users/4#addusertable");
     }
     
-    $result = mysql_query("INSERT INTO `hosts` (`hostname`, `password`, `access_level`) VALUES (
-        '" . mysql_real_escape_string($_POST["hostname"]) . "',
-        '" . mysql_real_escape_string(makepassword($_POST["password"])) . "',
-        '" . intval($_POST["role"]) . "')
-    ") or die("query failed");
+    $stmt = $mysqli->prepare('INSERT INTO `hosts` (`hostname`, `password`, `access_level`) VALUES (?, ?, ?)');
+    $stmt->bind_param('ssi', $_POST["hostname"], makepassword($_POST["password"]), intval($_POST["role"]));
+    $stmt->execute() or die('query failed');
+    $stmt->close();
 
-    redirect(BASEDIR . "admin/user/" . mysql_insert_id());
+    redirect(BASEDIR . "admin/user/" . $mysqli->insert_id);
 }
 
 
 function updateUser()
 {
+    global $mysqli;
     $user = intval($_POST["which"]);
 
-    $result = mysql_query("SELECT * FROM `hosts` WHERE `idhost` = $user") or die("query failed");
-    $row = mysql_fetch_assoc($result);
+    $result = $mysqli->query("SELECT * FROM `hosts` WHERE `idhost` = $user") or die('query failed');
+    $row = $result->fetch_assoc();
+    $result->free();
     if(!canEditUser($row))
     {
         redirect(BASEDIR);
@@ -148,27 +160,37 @@ function updateUser()
         return;
     }
     
-    $result = mysql_query("SELECT * FROM `hosts` WHERE (`idhost` != $user) AND (`hostname` = '" . mysql_real_escape_string($_POST["hostname"]) . "')") or die("query failed");
-    if(mysql_num_rows($result) > 0)
+    $stmt = $mysqli->prepare("SELECT * FROM `hosts` WHERE (`idhost` != ?) AND (`hostname` = ?)") or die('query failed');
+    $stmt->bind_param('is', $user, $_POST["hostname"]);
+    $stmt->execute() or die('query failed');
+    $result = $stmt->get_result();
+    $userExists = ($result->num_rows > 0);
+    $result->free();
+    $stmt->close();
+     
+    if($userExists)
     {
         echo "<p>User name is already taken!</p>";
         editUser($user);
         return;
     }
 
-    if($_POST["password"] != "")
+    if(isset($_POST["password"]) && $_POST["password"] != '')
     {
-        $password = "`password` = '" . mysql_real_escape_string(makepassword($_POST["password"])) . "', ";
+        $password = makepassword($_POST["password"]);
     } else
     {
-        $password = "";
+        $password = $row['password'];
     }
     
-    mysql_query("UPDATE `hosts` SET
-        `hostname` = '" . mysql_real_escape_string($_POST["hostname"]) . "',
-        $password
-        `access_level` = '" . intval($_POST["role"]) . "'
-        WHERE `idhost` = $user") or die("query failed");
+    $stmt = $mysqli->prepare('UPDATE `hosts` SET
+        `hostname` = ?,
+        `password` =  ?,
+        `access_level` = ?
+        WHERE `idhost` = ?') or die('query failed');
+    $stmt->bind_param('ssii', $_POST["hostname"], $password, intval($_POST["role"]), $user);
+    $stmt->execute() or die('query failed');
+    $stmt->close();
     
     if($_POST["which"] == $_SESSION["idhost"])
     {
@@ -182,23 +204,26 @@ function updateUser()
 
 function deleteUser($user, $doRedirect = TRUE)
 {
+    global $mysqli;
     $user = intval($user);
 
-    $result = mysql_query("SELECT * FROM `hosts` WHERE `idhost` = $user") or die("query failed");
-    $row = mysql_fetch_assoc($result);
+    $result = $mysqli->query("SELECT * FROM `hosts` WHERE `idhost` = $user") or die('query failed');
+    $row = $result->fetch_assoc();
+    $result->free();
     if(!canDeleteUser($row))
     {
         redirect(BASEDIR);
     }
     
     require("compo.php");  
-    $result = mysql_query("SELECT * FROM `compos` WHERE `idhost` = $user") or die("query failed");
-    while($row = mysql_fetch_assoc($result))
+    $result = $mysqli->query("SELECT * FROM `compos` WHERE `idhost` = $user") or die('query failed');
+    while($row = $result->fetch_assoc())
     {
         deleteCompo($row["idcompo"], FALSE);
     }
+    $result->free();
     
-    mysql_query("DELETE FROM `hosts` WHERE `idhost` = $user") or die("query failed");
+    $mysqli->query("DELETE FROM `hosts` WHERE `idhost` = $user") or die('query failed');
 
     if($doRedirect)
     {
@@ -208,6 +233,7 @@ function deleteUser($user, $doRedirect = TRUE)
 
 function displayUserManagement()
 {
+    global $mysqli;
     if(ACCESS < ACCESS_USERDB)
     {
         redirect(BASEDIR);
@@ -215,9 +241,9 @@ function displayUserManagement()
 
     echo '<h2>User management</h2>';
     
-    $result = mysql_query("SELECT *, (SELECT COUNT(*) FROM `compos` B WHERE A.`idhost` = B.`idhost`) AS `num_compos` FROM `hosts` A ORDER BY `access_level` DESC, `idhost` ASC") or die("query failed");
+    $result = $mysqli->query("SELECT *, (SELECT COUNT(*) FROM `compos` B WHERE A.`idhost` = B.`idhost`) AS `num_compos` FROM `hosts` A ORDER BY `access_level` DESC, `idhost` ASC") or die('query failed');
     echo "<table>";
-    while($row = mysql_fetch_assoc($result))
+    while($row = $result->fetch_assoc())
     {
         echo "<tr><td style=\"width:28px;\">";
         if(canDeleteUser($row))
@@ -244,8 +270,9 @@ function displayUserManagement()
         echo "</tr>";
     }
     echo "</table>";
+    $result->free();
     
-    echo "<h2>Add user</h2>";
+    echo '<h2 id="addusertable">Add user</h2>';
     if(isset($_GET["which"]))
     {
         switch($_GET["which"])
