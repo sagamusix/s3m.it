@@ -18,20 +18,20 @@ if(!defined("COMPOMANAGER"))
 require_once('util.php');
 
 ?>
-<form method="post" action="">
-  <input type="hidden" name="sent" />
+<form method="post">
+  <input type="hidden" name="sent">
   <div class="table-desc" style="background-image:url({{BASE}}img/magnifier.png)"><label for="what">Search for:</label></div>
-  <div class="table-item"><input name="what" id="what" value="<?php echo htmlspecialchars(isset($_POST["what"]) ? $_POST["what"] : ''); ?>" type="text" style="width:70%" /></div>
+  <div class="table-item"><input name="what" id="what" value="<?php echo htmlspecialchars(isset($_POST["what"]) ? $_POST["what"] : ''); ?>" type="text" required style="width:70%"></div>
 
   <div class="table-desc" style="background-image:url({{BASE}}img/page.png)">Search in:</div>
   <div class="table-item">
-     <input type="checkbox" name="songname" id="songname" value="1" <?php if(!isset($_POST['sent']) || isset($_POST['songname'])) echo 'checked="checked"'; ?> /><label for="songname">Song Name</label>
-     <input type="checkbox" name="author" id="author" value="1" <?php if(!isset($_POST['sent']) || isset($_POST['author'])) echo 'checked="checked"'; ?> /><label for="author">Author</label>
-     <input type="checkbox" name="componame" id="componame" value="1" <?php if(!isset($_POST['sent']) || isset($_POST['componame'])) echo 'checked="checked"'; ?> /><label for="componame">Compo Name</label>
+     <input type="checkbox" name="songname" id="songname" value="1" <?php if(!isset($_POST['sent']) || isset($_POST['songname'])) echo 'checked'; ?>><label for="songname">Song Name</label>
+     <input type="checkbox" name="author" id="author" value="1" <?php if(!isset($_POST['sent']) || isset($_POST['author'])) echo 'checked'; ?>><label for="author">Author</label>
+     <input type="checkbox" name="componame" id="componame" value="1" <?php if(!isset($_POST['sent']) || isset($_POST['componame'])) echo 'checked'; ?>><label for="componame">Compo Name</label>
   </div>
 
   <div class="table-desc">&nbsp;</div>
-  <div class="table-item"><input type="submit" /></div>
+  <div class="table-item"><input type="submit"></div>
 
 </form>
 <?php

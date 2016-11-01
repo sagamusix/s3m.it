@@ -177,7 +177,7 @@ if((isset($_POST['votes']) && is_array($_POST['votes'])) || (isset($_POST['penal
         <td id="filename_<?php echo $songindex; ?>"><?php echo htmlspecialchars($song['filename']); ?></td>
         <td id="title_<?php echo $songindex; ?>"><?php echo htmlspecialchars($song['title']); ?></td>
         <td id="author_<?php echo $songindex; ?>"><label for="penalty_<?php echo $songindex; ?>"><?php echo htmlspecialchars($song['author']); ?></label></td>
-        <td><input type="checkbox" id="penalty_<?php echo $songindex; ?>" checked="checked" /></td>
+        <td><input type="checkbox" id="penalty_<?php echo $songindex; ?>" checked></td>
         </tr>
 <?php
         }
@@ -210,7 +210,7 @@ if((isset($_POST['votes']) && is_array($_POST['votes'])) || (isset($_POST['penal
         <div class="table-desc" style="background-image:url({{BASE}}img/table.png)">Paste here:</div>
         <div class="table-item"><textarea id="paster" rows="5" cols="60"></textarea></div>
         <div class="table-desc" style="background-image:url({{BASE}}img/user.png)">Name:</div>
-        <div class="table-item"><input type="text" id="voter" style="width: 50%" /></div>
+        <div class="table-item"><input type="text" id="voter" style="width: 50%"></div>
 
     <p>Drag the items to adjust votes after pasting:</p>
 

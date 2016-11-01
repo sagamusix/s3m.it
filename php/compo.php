@@ -95,7 +95,7 @@ function editCompo($compo)
     if($row["active"] != 0)
     {
         echo '<p>This compo is currently <strong>open</strong>. Point people to this URL so they can upload their tunes:</p>';
-        echo '<p><input type="text" name="foo" value="{{BASE_ABS}}join/', $compo, '" style="width:100%;" onfocus="this.select()" /></p>';
+        echo '<p><input type="text" name="foo" value="{{BASE_ABS}}join/', $compo, '" style="width:100%;" onfocus="this.select()"></p>';
     }
 
     echo '<h2>Uploaded files</h2>';
@@ -258,10 +258,10 @@ function printCompoList($compos)
     {
         $nameJS = str_replace("'", "\\'", str_replace("\\", "\\\\", htmlspecialchars($compo["name"])));
         echo '<li>
-            <a href="{{BASE}}admin/delcompo/', $compo["idcompo"], '" onclick="return confirm(\'Delete ', $nameJS, '?\')"><img src="{{BASE}}img/delete.png" width="16" height="16" alt="Delete" title="Delete" /></a>
+            <a href="{{BASE}}admin/delcompo/', $compo["idcompo"], '" onclick="return confirm(\'Delete ', $nameJS, '?\')"><img src="{{BASE}}img/delete.png" width="16" height="16" alt="Delete" title="Delete"></a>
             <a href="{{BASE}}admin/compo/', $compo["idcompo"], '">', htmlspecialchars($compo["name"]), '</a> (', $compo["num_entries"], ' entries, started ', $compo["start_date"], ')',
-            ($compo["active"] != 0 ? ' <img src="{{BASE}}img/accept.png" width="16" height="16" alt="Running" title="Compo is running" /> ' : ''),
-            ($compo["downloadable"] != 0 ? ' <img src="{{BASE}}img/compress.png" width="16" height="16" alt="Downloadable" title="Votepack can be downloaded by users" />' : ''),
+            ($compo["active"] != 0 ? ' <img src="{{BASE}}img/accept.png" width="16" height="16" alt="Running" title="Compo is running"> ' : ''),
+            ($compo["downloadable"] != 0 ? ' <img src="{{BASE}}img/compress.png" width="16" height="16" alt="Downloadable" title="Votepack can be downloaded by users">' : ''),
             '</li>';
     }
     echo "</ul>";
@@ -275,19 +275,19 @@ function compoTable($row)
     ?>
     <form action="{{BASE}}admin/<?php if(empty($row)) echo "addcompo"; else echo "editcompo"; ?>" method="post"<?php if($embedJS) echo ' onsubmit="return checkClose()"'; ?>>
     
-    <input type="hidden" name="which" value="<?php if(!empty($row)) echo $row["idcompo"]; ?>" />
+    <input type="hidden" name="which" value="<?php if(!empty($row)) echo $row["idcompo"]; ?>">
     
     <div class="table-desc" style="background-image:url({{BASE}}img/page.png)"><label for="componame">Name:</label></div>
-    <div class="table-item"><input name="componame" id="componame" type="text" value="<?php if(empty($row)) echo "#channel " . date("Y-m-d", time()); else echo htmlspecialchars($row["name"]); ?>" maxlength="<?php echo MAX_COMPONAME_LENGTH; ?>" style="width:50%" /></div>
+    <div class="table-item"><input name="componame" id="componame" type="text" value="<?php if(empty($row)) echo "#channel " . date("Y-m-d", time()); else echo htmlspecialchars($row["name"]); ?>" maxlength="<?php echo MAX_COMPONAME_LENGTH; ?>" required style="width:50%"></div>
     
     <div class="table-desc" style="background-image:url({{BASE}}img/accept.png)"><label for="checkactive">Running:</label></div>
-    <div class="table-item"><label><input type="radio" id="checkactive" name="active" value="1" <?php if(empty($row) || $row["active"]) echo ' checked="checked"'; ?> /> Open (people can upload songs)</label></div>
+    <div class="table-item"><label><input type="radio" id="checkactive" name="active" value="1" <?php if(empty($row) || $row["active"]) echo ' checked'; ?>> Open (people can upload songs)</label></div>
     
     <div class="table-desc" style="background-image:url({{BASE}}img/compress.png)"><label for="checkdownloadable">Download:</label></div>
-    <div class="table-item"><label><input type="radio" id="checkdownloadable" name="active" value="0" <?php if($row["downloadable"]) echo ' checked="checked"'; ?> /> Closed (people can download the pack)</label></div>
+    <div class="table-item"><label><input type="radio" id="checkdownloadable" name="active" value="0" <?php if($row["downloadable"]) echo ' checked'; ?>> Closed (people can download the pack)</label></div>
     
     <div class="table-desc">&nbsp;</div>
-    <div class="table-item"><input type="submit" /></div>
+    <div class="table-item"><input type="submit"></div>
     </form>
     <?php
     if($embedJS)
@@ -470,26 +470,26 @@ function viewCompoAjax($compo, $ajax)
             $nameJS = str_replace("'", "\\'", str_replace("\\", "\\\\", htmlspecialchars($row["filename"])));
 
             echo $row['date'], '</span>
-                <a href="', BASEDIR, 'admin/delfile/', $row["identry"], '" onclick="return confirm(\'Delete ', $nameJS, '?\')"><img src="', BASEDIR, 'img/page_delete.png" width="16" height="16" alt="Delete" title="Delete" /></a>
+                <a href="', BASEDIR, 'admin/delfile/', $row["identry"], '" onclick="return confirm(\'Delete ', $nameJS, '?\')"><img src="', BASEDIR, 'img/page_delete.png" width="16" height="16" alt="Delete" title="Delete"></a>
                 <a href="', BASEDIR, 'admin/fetchfile/', $row["identry"], '" title="', htmlspecialchars($row["title"]), '"><strong>', htmlspecialchars($row["filename"]), '</strong></a>
                 by <strong>', htmlspecialchars($row["author"]), '</strong></li>';
 
             $lastUpdate = $row['date'];
         }
         $result->free();
-        echo '<li><a href="', BASEDIR, 'admin/fetchpack/', $compo, '"><img src="', BASEDIR, 'img/compress.png" width="16" height="16" alt="" /> Download the whole pack (admin only)</a></li>';
+        echo '<li><a href="', BASEDIR, 'admin/fetchpack/', $compo, '"><img src="', BASEDIR, 'img/compress.png" width="16" height="16" alt=""> Download the whole pack (admin only)</a></li>';
         echo "</ul>";
-        echo '<p><a href="', BASEDIR, 'admin/voting/', $compo, '"><img src="', BASEDIR, 'img/table.png" width="16" height="16" alt="" /> Enter <strong>votes</strong></a> using lazyvote</p>';
+        echo '<p><a href="', BASEDIR, 'admin/voting/', $compo, '"><img src="', BASEDIR, 'img/table.png" width="16" height="16" alt=""> Enter <strong>votes</strong></a> using lazyvote</p>';
 
         if($downloadable != 0)
         {
             echo '<p>This pack is <strong>downloadable</strong>. Point people to this URL to get the votepack:</p>';
-            echo '<p><input type="text" name="bar" value="', BASEDIR_ABSOLUTE, 'pack/', $compo, '" style="width:100%;" onfocus="this.select()" /></p>';
+            echo '<p><input type="text" name="bar" value="', BASEDIR_ABSOLUTE, 'pack/', $compo, '" style="width:100%;" onfocus="this.select()"></p>';
             echo '<p>Compo overview page:</p>';
-            echo '<p><input type="text" name="bar" value="', BASEDIR_ABSOLUTE, 'compo/', $compo, '" style="width:100%;" onfocus="this.select()" /></p>';
+            echo '<p><input type="text" name="bar" value="', BASEDIR_ABSOLUTE, 'compo/', $compo, '" style="width:100%;" onfocus="this.select()"></p>';
         }
 
-        echo '<p><a href="', BASEDIR, 'admin/delpack/', $compo, '" onclick="return confirm(\'Delete all files?\')"><img src="', BASEDIR, 'img/page_delete.png" width="16" height="16" alt="" /> Delete <strong>all</strong> files</a></p>';
+        echo '<p><a href="', BASEDIR, 'admin/delpack/', $compo, '" onclick="return confirm(\'Delete all files?\')"><img src="', BASEDIR, 'img/page_delete.png" width="16" height="16" alt=""> Delete <strong>all</strong> files</a></p>';
     } else
     {
         echo "<p>No files have been uploaded so far.</p>";

@@ -249,7 +249,7 @@ function displayUserManagement()
         if(canDeleteUser($row))
         {
             $nameJS = str_replace("'", "\\'", str_replace("\\", "\\\\", htmlspecialchars($row["hostname"])));
-            echo '<a href="{{BASE}}admin/deluser/', $row["idhost"], '" onclick="return confirm(\'Delete ', $nameJS, '?\')"><img src="{{BASE}}img/user_delete.png" width="16" height="16" alt="Delete" title="Delete" /></a>';
+            echo '<a href="{{BASE}}admin/deluser/', $row["idhost"], '" onclick="return confirm(\'Delete ', $nameJS, '?\')"><img src="{{BASE}}img/user_delete.png" width="16" height="16" alt="Delete" title="Delete"></a>';
         }
         echo "</td><td style=\"width:20px;\">";
         $editOpen = "";
@@ -258,11 +258,11 @@ function displayUserManagement()
         {
             $editOpen = '<a href="{{BASE}}admin/user/' . $row["idhost"] . '">';
             $editClose = '</a>';
-            echo $editOpen, '<img src="{{BASE}}img/user_edit.png" width="16" height="16" alt="Edit" title="Edit" />', $editClose;
+            echo $editOpen, '<img src="{{BASE}}img/user_edit.png" width="16" height="16" alt="Edit" title="Edit">', $editClose;
         }
         echo "</td>";
         echo '<td>', $editOpen, '<strong>', htmlspecialchars($row["hostname"]), '</strong>' , $editClose, ($row["idhost"] == $_SESSION["idhost"]) ? " (you)" : "", '</td>
-            <td><img src="{{BASE}}img/vcard.png" width="16" height="16" alt="Role:" /> ', htmlspecialchars(getRoleName($row["access_level"])), '</td>';
+            <td><img src="{{BASE}}img/vcard.png" width="16" height="16" alt="Role:"> ', htmlspecialchars(getRoleName($row["access_level"])), '</td>';
         if(ACCESS >= ACCESS_FULLADMIN)
         {
             echo '<td>', $row["num_compos"], ' compos</td>';
@@ -301,16 +301,16 @@ function userTable($row)
     ?>
           <form action="{{BASE}}admin/<?php if(empty($row)) echo "adduser"; else echo "edituser"; ?>" method="post">
           
-          <input type="hidden" name="which" value="<?php if(!empty($row)) echo $row["idhost"]; ?>" />
+          <input type="hidden" name="which" value="<?php if(!empty($row)) echo $row["idhost"]; ?>">
           
           <div class="table-desc" style="background-image:url({{BASE}}img/user.png)"><label for="hostname">Name:</label></div>
-          <div class="table-item"><input name="hostname" id="hostname" type="text" value="<?php echo htmlspecialchars($row["hostname"]); ?>" maxlength="<?php echo MAX_USERNAME_LENGTH; ?>" style="width:50%" /></div>
+          <div class="table-item"><input name="hostname" id="hostname" type="text" value="<?php echo htmlspecialchars($row["hostname"]); ?>" maxlength="<?php echo MAX_USERNAME_LENGTH; ?>" required style="width:50%"></div>
 
           <div class="table-desc" style="background-image:url({{BASE}}img/key.png)"><label for="password">Password:</label></div>
-          <div class="table-item"><input name="password" id="password" type="password" style="width:50%" /></div>
+          <div class="table-item"><input name="password" id="password" type="password" required style="width:50%"></div>
 
           <div class="table-desc" style="background-image:url({{BASE}}img/key.png)"><label for="password_rep">Again:</label></div>
-          <div class="table-item"><input name="password_rep" id="password_rep" type="password" style="width:50%" /></div>
+          <div class="table-item"><input name="password_rep" id="password_rep" type="password" required style="width:50%"></div>
 
           <div class="table-desc" style="background-image:url({{BASE}}img/vcard.png)"><label for="role">User Role:</label></div>
           <div class="table-item">
@@ -329,7 +329,7 @@ function userTable($row)
           </div>
 
           <div class="table-desc">&nbsp;</div>
-          <div class="table-item"><input type="submit" /></div>
+          <div class="table-item"><input type="submit"></div>
           </form>
     <?php
 }

@@ -508,9 +508,9 @@ function showCompoDirectory($compo)
                 <tbody>';
             while($row = $result->fetch_assoc())
             {
-                echo '<tr><td>', $row['place'], ($row['place'] <= 3 ? ' <img src="{{BASE}}img/medal' . $row['place'] . '.png" width="16" height="16" alt="" />' : ''), '</td>
+                echo '<tr><td>', $row['place'], ($row['place'] <= 3 ? ' <img src="{{BASE}}img/medal' . $row['place'] . '.png" width="16" height="16" alt="">' : ''), '</td>
                     <td>', htmlspecialchars($row['author']), '</td>
-                    <td><a href="javascript:;" onclick="javascript:play(this)"><img src="{{BASE}}img/play.png" width="16" height="16" alt="Play" title="Play" /></a> <a href="{{BASE}}pack/', $compo, '/', urlencode($row['filename']), '">', htmlspecialchars($row['filename']), '</a></td>
+                    <td><a href="javascript:;" onclick="javascript:play(this)"><img src="{{BASE}}img/play.png" width="16" height="16" alt="Play" title="Play"></a> <a href="{{BASE}}pack/', $compo, '/', urlencode($row['filename']), '">', htmlspecialchars($row['filename']), '</a></td>
                     <td>', htmlspecialchars($row['points']), '</td>
                     </tr>'; 
             }

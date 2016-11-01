@@ -192,19 +192,19 @@ function uploadForm($compo)
 
           <form action="{{BASE}}fileupload" enctype="multipart/form-data" method="post" onsubmit="return validateUpload()">
 
-          <input type="hidden" name="compo" value="<?php echo $compo['idcompo']; ?>" />
-          <input type="hidden" name="token" value="0" id="upload-token" />
-          <input type="hidden" name="<?php echo ini_get('session.upload_progress.name'); ?>" value="compo" />
+          <input type="hidden" name="compo" value="<?php echo $compo['idcompo']; ?>">
+          <input type="hidden" name="token" value="0" id="upload-token">
+          <input type="hidden" name="<?php echo ini_get('session.upload_progress.name'); ?>" value="compo">
 
           <div class="table-desc" style="background-image:url({{BASE}}img/user.png)"><label for="author">Your Name:</label></div>
-          <div class="table-item"><input name="author" id="author" value="<?php echo isset($_COOKIE['author']) ? htmlspecialchars($_COOKIE['author']) : ''; ?>" type="text" maxlength="<?php echo MAX_AUTHOR_LENGTH; ?>" style="width:50%" /> (required)</div>
+          <div class="table-item"><input name="author" id="author" value="<?php echo isset($_COOKIE['author']) ? htmlspecialchars($_COOKIE['author']) : ''; ?>" type="text" maxlength="<?php echo MAX_AUTHOR_LENGTH; ?>" required style="width:50%"> (required)</div>
 
           <div class="table-desc" style="background-image:url({{BASE}}img/page.png)"><label for="userfile">Choon:</label></div>
-          <input type="hidden" name="MAX_FILE_SIZE" value="<?php echo MAX_UPLOAD_SIZE; ?>" />
-          <div class="table-item"><input name="userfile" id="userfile" type="file" maxlength="<?php echo MAX_UPLOAD_SIZE; ?>" /> (required, <?php echo intval(MAX_UPLOAD_SIZE * 10 / 1024 / 1024) / 10; ?> MiB max)</div>
+          <input type="hidden" name="MAX_FILE_SIZE" value="<?php echo MAX_UPLOAD_SIZE; ?>">
+          <div class="table-item"><input name="userfile" id="userfile" type="file" maxlength="<?php echo MAX_UPLOAD_SIZE; ?>" required> (required, <?php echo intval(MAX_UPLOAD_SIZE * 10 / 1024 / 1024) / 10; ?> MiB max)</div>
 
           <div class="table-desc">&nbsp;</div>
-          <div class="table-item"><input type="submit" /></div>
+          <div class="table-item"><input type="submit"></div>
           </form>
 
           <div id="loader">
