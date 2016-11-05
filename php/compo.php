@@ -291,7 +291,7 @@ function compoTable($row)
     {
         // Dynamic update of the file list + show active uploaders on close
     ?>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js" type="text/javascript"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.4/jquery.min.js" type="text/javascript" async></script>
     <script type="text/javascript">
     var closeUpload;
     function checkClose()
@@ -340,12 +340,12 @@ function compoTable($row)
                         updateInterval = 30000;
                     }
                 }
-                window.setTimeout("checkPing()", updateInterval);
+                window.setTimeout(checkPing, updateInterval);
             }
         );
     }
 
-    checkPing();
+    window.onload = checkPing;
     </script>
     <?php
     }

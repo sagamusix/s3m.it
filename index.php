@@ -1,4 +1,5 @@
 <?php
+header("Content-Security-Policy: default-src 'none'; script-src 'self' 'unsafe-inline' https://ajax.googleapis.com; style-src 'self' 'unsafe-inline'; img-src 'self'; connect-src 'self'");
 
 require_once('php/settings.php');
 

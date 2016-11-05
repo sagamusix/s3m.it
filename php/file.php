@@ -494,7 +494,7 @@ function showCompoDirectory($compo)
         if($result->num_rows != 0)
         {
             echo '<script type="text/javascript">var basepath = "{{BASE}}";</script>';
-            echo '<script type="text/javascript" src="{{BASE}}js/chiptune2.js"></script>';
+            echo '<script type="text/javascript" src="{{BASE}}js/chiptune2.js" async></script>';
             echo '<h2>Entries</h2>';
             echo'<table class="stats">
                 <thead>

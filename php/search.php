@@ -133,7 +133,7 @@ if(isset($_POST['what']) && $_POST['what'] != '')
 <h2>Entries</h2>
 
 <script type="text/javascript">var basepath = "{{BASE}}";</script>
-<script type="text/javascript" src="{{BASE}}js/chiptune2.js"></script>
+<script type="text/javascript" src="{{BASE}}js/chiptune2.js" async></script>
 <table class="stats">
 <thead>
     <tr>
