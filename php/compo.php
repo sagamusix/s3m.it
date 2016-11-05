@@ -89,7 +89,7 @@ function editCompo($compo)
         redirect(BASEDIR);
     }
 
-    echo "<h2>Edit compo &quot;", htmlspecialchars($row["name"]), "&quot;</h2>";
+    echo '<h2>Edit compo "', htmlspecialchars($row["name"]), '"</h2>';
     compoTable($row);
 
     if($row["active"] != 0)
@@ -231,29 +231,26 @@ function listCompos($user)
     }
     $result->free();
 
+    echo '<h2>New compo</h2>';
+    compoTable(NULL);
+
     if(count($active))
     {
-        echo "<h2>Running compos</h2>";
+        echo '<h2>Running compos</h2>';
         printCompoList($active);
     }
 
     if(count($inactive))
     {
-        echo "<h2>Closed compos</h2>";
+        echo '<h2>Closed compos</h2>';
         printCompoList($inactive);
     }
-
-    // echo "<p>Please delete all compos after hosting!</p>";
-
-    echo "<h2>New compo</h2>";
-    compoTable(NULL);
-
 }
 
 
 function printCompoList($compos)
 {
-    echo "<ul>";
+    echo '<ul>';
     foreach($compos as $compo)
     {
         $nameJS = str_replace("'", "\\'", str_replace("\\", "\\\\", htmlspecialchars($compo["name"])));
@@ -264,7 +261,7 @@ function printCompoList($compos)
             ($compo["downloadable"] != 0 ? ' <img src="{{BASE}}img/compress.png" width="16" height="16" alt="Downloadable" title="Votepack can be downloaded by users">' : ''),
             '</li>';
     }
-    echo "</ul>";
+    echo '</ul>';
 
 }
 
@@ -273,12 +270,12 @@ function compoTable($row)
 {
     $embedJS = !empty($row) && $row["active"];
     ?>
-    <form action="{{BASE}}admin/<?php if(empty($row)) echo "addcompo"; else echo "editcompo"; ?>" method="post"<?php if($embedJS) echo ' onsubmit="return checkClose()"'; ?>>
+    <form action="{{BASE}}admin/<?php if(empty($row)) echo 'addcompo'; else echo 'editcompo'; ?>" method="post"<?php if($embedJS) echo ' onsubmit="return checkClose()"'; ?>>
     
     <input type="hidden" name="which" value="<?php if(!empty($row)) echo $row["idcompo"]; ?>">
     
     <div class="table-desc" style="background-image:url({{BASE}}img/page.png)"><label for="componame">Name:</label></div>
-    <div class="table-item"><input name="componame" id="componame" type="text" value="<?php if(empty($row)) echo "#channel " . date("Y-m-d", time()); else echo htmlspecialchars($row["name"]); ?>" maxlength="<?php echo MAX_COMPONAME_LENGTH; ?>" required style="width:50%"></div>
+    <div class="table-item"><input name="componame" id="componame" type="text" value="<?php if(empty($row)) echo '#channel ' . date("Y-m-d", time()); else echo htmlspecialchars($row["name"]); ?>" maxlength="<?php echo MAX_COMPONAME_LENGTH; ?>" required style="width:50%"></div>
     
     <div class="table-desc" style="background-image:url({{BASE}}img/accept.png)"><label for="checkactive">Running:</label></div>
     <div class="table-item"><label><input type="radio" id="checkactive" name="active" value="1" <?php if(empty($row) || $row["active"]) echo ' checked'; ?>> Open (people can upload songs)</label></div>
@@ -478,7 +475,7 @@ function viewCompoAjax($compo, $ajax)
         }
         $result->free();
         echo '<li><a href="', BASEDIR, 'admin/fetchpack/', $compo, '"><img src="', BASEDIR, 'img/compress.png" width="16" height="16" alt=""> Download the whole pack (admin only)</a></li>';
-        echo "</ul>";
+        echo '</ul>';
         echo '<p><a href="', BASEDIR, 'admin/voting/', $compo, '"><img src="', BASEDIR, 'img/table.png" width="16" height="16" alt=""> Enter <strong>votes</strong></a> using lazyvote</p>';
 
         if($downloadable != 0)
@@ -492,7 +489,7 @@ function viewCompoAjax($compo, $ajax)
         echo '<p><a href="', BASEDIR, 'admin/delpack/', $compo, '" onclick="return confirm(\'Delete all files?\')"><img src="', BASEDIR, 'img/page_delete.png" width="16" height="16" alt=""> Delete <strong>all</strong> files</a></p>';
     } else
     {
-        echo "<p>No files have been uploaded so far.</p>";
+        echo '<p>No files have been uploaded so far.</p>';
     }
 
     if($ajax)
