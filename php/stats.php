@@ -42,11 +42,11 @@ while($row = $result->fetch_assoc())
     }
 
     $i++;
-    echo '<tr><td>' . $i . '</td>
-        <td>' . htmlspecialchars($row['author']) . '</td>
-        <td>' . $row['num_compos'] . '</td>
-        <td>' . $row['total_points'] . '</td>
-        <td>' . $row['avg_place'] . '</td>
+    echo '<tr><td>', $i, '</td>
+        <td><a href="{{BASE}}search?what=', urlencode($row['author']), '&amp;author=1">', htmlspecialchars($row['author']), '</a></td>
+        <td>', $row['num_compos'], '</td>
+        <td>', $row['total_points'], '</td>
+        <td>', $row['avg_place'], '</td>
         </tr>';
 }
 $result->free();
@@ -86,7 +86,7 @@ while($row = $result->fetch_assoc())
     echo '<tr><td>', $row['points'], '</td>
         <td>', ordinalize($row['place']), '</td>
         <td title="', htmlspecialchars($row["title"]), '"><a href="javascript:;" onclick="javascript:play(this)"><img src="{{BASE}}img/play.png" width="16" height="16" alt="Play" title="Play"></a> <a href="{{BASE}}pack/', $row['idcompo'], '/', urlencode($row['filename']), '">', htmlspecialchars($row['filename']), '</a></td>
-        <td>', htmlspecialchars($row['author']), '</td>
+        <td><a href="{{BASE}}search?what=', urlencode($row['author']), '&amp;author=1">', htmlspecialchars($row['author']), '</a></td>
         <td><a href="{{BASE}}compo/', $row['idcompo'], '">', htmlspecialchars($row['name']), '</a></td>
         </tr>';
 }
@@ -120,7 +120,7 @@ SELECT `author`, COUNT(*) AS `num`, (SELECT COUNT(*) FROM `entries` WHERE `autho
 
 while($row = $result->fetch_assoc())
 {
-    echo '<tr><td>', htmlspecialchars($row['author']), '</td>
+    echo '<tr><td><a href="{{BASE}}search?what=', urlencode($row['author']), '&amp;author=1">', htmlspecialchars($row['author']), '</a></td>
         <td>', $row['num'], '</td>
         <td>', $row['num_recent'], '</td>
         </tr>';

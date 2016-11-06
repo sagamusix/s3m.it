@@ -18,16 +18,15 @@ if(!defined("COMPOMANAGER"))
 require_once('util.php');
 
 ?>
-<form method="post">
-  <input type="hidden" name="sent">
+<form method="get">
   <div class="table-desc" style="background-image:url({{BASE}}img/magnifier.png)"><label for="what">Search for:</label></div>
-  <div class="table-item"><input name="what" id="what" value="<?php echo htmlspecialchars(isset($_POST["what"]) ? $_POST["what"] : ''); ?>" type="text" required style="width:70%"></div>
+  <div class="table-item"><input name="what" id="what" value="<?php echo htmlspecialchars(isset($_GET["what"]) ? $_GET["what"] : ''); ?>" type="text" required style="width:70%"></div>
 
   <div class="table-desc" style="background-image:url({{BASE}}img/page.png)">Search in:</div>
   <div class="table-item">
-     <input type="checkbox" name="songname" id="songname" value="1" <?php if(!isset($_POST['sent']) || isset($_POST['songname'])) echo 'checked'; ?>><label for="songname">Song Name</label>
-     <input type="checkbox" name="author" id="author" value="1" <?php if(!isset($_POST['sent']) || isset($_POST['author'])) echo 'checked'; ?>><label for="author">Author</label>
-     <input type="checkbox" name="componame" id="componame" value="1" <?php if(!isset($_POST['sent']) || isset($_POST['componame'])) echo 'checked'; ?>><label for="componame">Compo Name</label>
+     <input type="checkbox" name="songname" id="songname" value="1" <?php if(!isset($_GET['what']) || isset($_GET['songname'])) echo 'checked'; ?>><label for="songname">Song Name</label>
+     <input type="checkbox" name="author" id="author" value="1" <?php if(!isset($_GET['what']) || isset($_GET['author'])) echo 'checked'; ?>><label for="author">Author</label>
+     <input type="checkbox" name="componame" id="componame" value="1" <?php if(!isset($_GET['what']) || isset($_GET['componame'])) echo 'checked'; ?>><label for="componame">Compo Name</label>
   </div>
 
   <div class="table-desc">&nbsp;</div>
@@ -36,16 +35,16 @@ require_once('util.php');
 </form>
 <?php
 
-if(isset($_POST['what']) && $_POST['what'] != '')
+if(isset($_GET['what']) && $_GET['what'] != '')
 {
-    $what = $_POST['what'];
+    $what = $_GET['what'];
     $what = str_replace('%', '\%', $what);
     $what = str_replace('_', '\_', $what);
     $what = str_replace('*', '%', $what);
     $what = str_replace('?', '_', $what);
     $what = "%$what%";
     
-    if(isset($_POST['componame']))
+    if(isset($_GET['componame']))
     {
         
         $stmt = $mysqli->prepare('
@@ -94,7 +93,7 @@ if(isset($_POST['what']) && $_POST['what'] != '')
         $stmt->close();
     }
 
-    if(isset($_POST['songname']) || isset($_POST['author']))
+    if(isset($_GET['songname']) || isset($_GET['author']))
     {
         $paramType = '';
         
@@ -103,12 +102,12 @@ if(isset($_POST['what']) && $_POST['what'] != '')
             FROM `entries`, `compos`
             WHERE `entries`.`idcompo` = `compos`.`idcompo` AND `compos`.`active` = 0
             AND (0';
-        if(isset($_POST['songname']))
+        if(isset($_GET['songname']))
         {
             $query .= " OR `title` LIKE ? OR `filename` LIKE ?";
             $paramType .= 'ss';
         }
-        if(isset($_POST['author']))
+        if(isset($_GET['author']))
         {
             $query .= " OR (`author` LIKE ? AND `points` IS NOT NULL)";
             $paramType .= 's';
