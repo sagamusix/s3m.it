@@ -22,7 +22,7 @@ RewriteRule ^results/(\d+)\.txt$ index.php?getresults=$1 [L]
 RewriteRule ^compo/(\d+)$ index.php?getcompo=$1 [L]
 RewriteRule ^ping$ index.php?uploadping [L]
 RewriteRule ^stats$ index.php?stats [L]
-RewriteRule ^search$ index.php?search [L]
+RewriteRule ^search$ index.php?search [L,QSA]
 RewriteRule ^compos$ index.php?compos [L]
 
 RewriteRule ^admin/voting/(\d+)/(.*)$ index.php?admin&action=voting&which=$1&$2 [L]
