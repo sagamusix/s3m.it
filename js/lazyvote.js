@@ -10,7 +10,7 @@
   	$('#paster').val('');
   	for(var i=0;i<numEntries;i++) {
   		if(v == $('#author_' + (i+1)).text()) {
-  			$('#penalty_' + (i+1)).removeAttr('checked');
+  			$('#penalty_' + (i+1)).removeProp('checked');
   		}
   	}
   }
@@ -110,7 +110,7 @@ function strlcs(string1, string2){
 		var needVotes = [];
 		var penalty = [];
 		for(var i=0;i<numEntries;i++) {
-			if($('#penalty_' + (i+1)).attr('checked')) {
+			if($('#penalty_' + (i+1)).prop('checked')) {
 				needVotes.push($('#author_' + (i+1)).text());
 				penalty.push(i+1);
 			}
