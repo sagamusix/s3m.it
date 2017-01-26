@@ -18,18 +18,18 @@
  *     Offer a compo pack file specified by its ID $file for download.
  * deleteFile($file)
  *     Delete a file from a compo pack, specified by its ID $file.
- * fetchPack($compo, $file = '')
+ * fetchPack($compo)
  *     Offer a compo pack specified by the compo's ID $compo.
  * deletePack($compo, $doRedirect = TRUE)
  *     Delete a compo pack and redirect if $doRedirect is TRUE.
  * showCompoDirectory($compo)
  *     Show a "directory listing" with the pack + results file
  * canFetchFile($file)
- *     Returns TRUE if the logged in user can download a compo pack file.
+ *     Returns TRUE if the logged in user or guest can download a compo pack file.
  * canDeleteFile($file)
  *     Returns TRUE if the logged in user can delete a compo pack file.
  * canFetchPack($compo)
- *     Returns TRUE if the (logged in) user can download a compo pack.
+ *     Returns TRUE if the logged in user or guest can download a compo pack.
  * canDeletePack($compo)
  *     Returns TRUE if the (logged in) user can delete a compo pack.
  *
@@ -44,19 +44,22 @@ require_once('modinfo.php');
 require_once('archive.php');
 
 // Guest activities
-if(isset($_GET["fileupload"]))
+if(isset($_GET['fileupload']))
 {
     processUpload();
     return;
-} else if(isset($_GET["getpack"]))
+} else if(isset($_GET['getpack']))
 {
-    fetchPack($_GET["getpack"], isset($_GET["file"]) ? $_GET["file"] : '');
-} else if(isset($_GET["getresults"]))
+    fetchPack($_GET['getpack']);
+} else if(isset($_GET['getfile']))
 {
-    fetchResults($_GET["getresults"]);
-} else if(isset($_GET["getcompo"]))
+    fetchFile($_GET['getfile']);
+} else if(isset($_GET['getresults']))
 {
-    showCompoDirectory($_GET["getcompo"]);
+    fetchResults($_GET['getresults']);
+} else if(isset($_GET['getcompo']))
+{
+    showCompoDirectory($_GET['getcompo']);
     return;
 } else if(isset($_GET['uploadping']))
 {
@@ -386,7 +389,7 @@ function fetchResults($compo)
 }
 
 
-function fetchPack($compo, $file = '')
+function fetchPack($compo)
 {
     global $mysqli;
     $compo = intval($compo);
@@ -394,14 +397,6 @@ function fetchPack($compo, $file = '')
     if(!canFetchPack($compo))
     {
         redirect(BASEDIR);
-    }
-
-    if($file != '')
-    {
-        $arc = new ArchiveFile(UPLOAD_DIR . $compo);
-        $arc->Extract($file);
-        $arc->Close();
-        die();
     }
 
     $arcName = ArchiveFile::FileName(UPLOAD_DIR . $compo);
@@ -509,8 +504,8 @@ function showCompoDirectory($compo)
             while($row = $result->fetch_assoc())
             {
                 echo '<tr><td>', $row['place'], ($row['place'] <= 3 ? ' <img src="{{BASE}}img/medal' . $row['place'] . '.png" width="16" height="16" alt="">' : ''), '</td>
-                    <td>', htmlspecialchars($row['author']), '</td>
-                    <td><a href="javascript:;" onclick="javascript:play(this)"><img src="{{BASE}}img/play.png" width="16" height="16" alt="Play" title="Play"></a> <a href="{{BASE}}pack/', $compo, '/', urlencode($row['filename']), '">', htmlspecialchars($row['filename']), '</a></td>
+                    <td><a href="{{BASE}}search?what=', urlencode($row['author']), '&amp;author=1">', htmlspecialchars($row['author']), '</a></td>
+                    <td><a href="javascript:;" onclick="javascript:play(this)"><img src="{{BASE}}img/play.png" width="16" height="16" alt="Play" title="Play"></a> <a href="{{BASE}}file/', $row['identry'], '">', htmlspecialchars($row['filename']), '</a></td>
                     <td>', htmlspecialchars($row['points']), '</td>
                     </tr>'; 
             }
@@ -526,7 +521,16 @@ function showCompoDirectory($compo)
 
 function canFetchFile($file)
 {
-    return canDeleteFile($file);
+    $file = intval($file);
+    if(canDeleteFile($file))
+    {
+        return true;
+    }
+    global $mysqli;
+    $result = $mysqli->query("SELECT `idcompo` FROM `entries` WHERE `identry` = $file") or die('query failed');
+    $row = $result->fetch_assoc();
+    $result->free();
+    return canFetchPack($row['idcompo']);
 }
 
 

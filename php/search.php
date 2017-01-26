@@ -98,7 +98,7 @@ if(isset($_GET['what']) && $_GET['what'] != '')
         $paramType = '';
         
         $query = '
-        SELECT `author`, `filename`, `title`, `points`, `place`, `name`, `entries`.`idcompo` AS `idcompo`
+        SELECT `identry`, `author`, `filename`, `title`, `points`, `place`, `name`, `entries`.`idcompo` AS `idcompo`
             FROM `entries`, `compos`
             WHERE `entries`.`idcompo` = `compos`.`idcompo` AND `compos`.`active` = 0
             AND (0';
@@ -151,7 +151,7 @@ if(isset($_GET['what']) && $_GET['what'] != '')
                 if($row['points'] === NULL) $row['author'] = 'n/a';
                 echo '<tr><td>', $row['points'], '</td>
                     <td>', ordinalize($row['place']), '</td>
-                    <td title="', htmlspecialchars($row["title"]), '"><a href="javascript:;" onclick="javascript:play(this)"><img src="{{BASE}}img/play.png" width="16" height="16" alt="Play" title="Play"></a> <a href="{{BASE}}pack/', $row['idcompo'], '/', urlencode($row['filename']), '">', htmlspecialchars($row['filename']), '</a></td>
+                    <td title="', htmlspecialchars($row["title"]), '"><a href="javascript:;" onclick="javascript:play(this)"><img src="{{BASE}}img/play.png" width="16" height="16" alt="Play" title="Play"></a> <a href="{{BASE}}file/', $row['identry'], '">', htmlspecialchars($row['filename']), '</a></td>
                     <td>', htmlspecialchars($row['author']), '</td>
                     <td><a href="{{BASE}}compo/', $row['idcompo'], '">', htmlspecialchars($row['name']), '</a></td>
                     </tr>';

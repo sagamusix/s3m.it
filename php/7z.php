@@ -71,7 +71,7 @@ class ArchiveFile
         $stat = stat($tempFile);
     
         ob_end_clean();
-        header('Content-Disposition: attachment; filename="' . $file . '"');
+        header('Content-Disposition: attachment;filename="' . addslashes(utf8_decode($file)) . '";filename*=utf-8\'\'' . rawurlencode($file));
         header("Content-type: application/octet-stream");
         header("Content-Length: " . $stat["size"]);
         header('Last-Modified: ' . date('r', $stat["mtime"]));

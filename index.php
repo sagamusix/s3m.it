@@ -43,6 +43,9 @@ if(isset($_GET['admin']))
 } else if(isset($_GET['getpack']))
 {
     require('php/file.php');
+} else if(isset($_GET['getfile']))
+{
+    require('php/file.php');
 } else if(isset($_GET['getresults']))
 {
     require('php/file.php');

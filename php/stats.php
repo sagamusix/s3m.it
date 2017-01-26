@@ -73,7 +73,7 @@ $result->free();
 <?php
 
 $result = $mysqli->query('
-SELECT `author`, `filename`, `title`, `points`, `place`, `name`, `entries`.`idcompo` AS `idcompo`
+SELECT `identry`, `author`, `filename`, `title`, `points`, `place`, `name`, `entries`.`idcompo` AS `idcompo`
     FROM `entries`, `compos`
     WHERE `entries`.`idcompo` = `compos`.`idcompo`
     AND `points` IS NOT NULL
@@ -85,7 +85,7 @@ while($row = $result->fetch_assoc())
 {
     echo '<tr><td>', $row['points'], '</td>
         <td>', ordinalize($row['place']), '</td>
-        <td title="', htmlspecialchars($row["title"]), '"><a href="javascript:;" onclick="javascript:play(this)"><img src="{{BASE}}img/play.png" width="16" height="16" alt="Play" title="Play"></a> <a href="{{BASE}}pack/', $row['idcompo'], '/', urlencode($row['filename']), '">', htmlspecialchars($row['filename']), '</a></td>
+        <td title="', htmlspecialchars($row["title"]), '"><a href="javascript:;" onclick="javascript:play(this)"><img src="{{BASE}}img/play.png" width="16" height="16" alt="Play" title="Play"></a> <a href="{{BASE}}file/', $row['identry'], '">', htmlspecialchars($row['filename']), '</a></td>
         <td><a href="{{BASE}}search?what=', urlencode($row['author']), '&amp;author=1">', htmlspecialchars($row['author']), '</a></td>
         <td><a href="{{BASE}}compo/', $row['idcompo'], '">', htmlspecialchars($row['name']), '</a></td>
         </tr>';
