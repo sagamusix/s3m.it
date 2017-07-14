@@ -37,7 +37,7 @@ if(!canEditCompo($row))
 $compo_name = htmlspecialchars($row['name']);
 $isActive = $row['active'];
 
-$result = $mysqli->query("SELECT * FROM `entries` WHERE `idcompo` = $compo") or die('query failed');
+$result = $mysqli->query("SELECT * FROM `entries` WHERE `idcompo` = $compo ORDER BY `identry` ASC") or die('query failed');
 $songs = array();
 $songindex = 0;
 while($row = $result->fetch_assoc())

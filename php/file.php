@@ -108,6 +108,12 @@ function processUpload()
         $stmt->execute() or die('query failed');
     }
 
+    if(empty($_POST))
+    {
+        uploadError('No form data was submitted. Likely reason: File size was too big (' . intval(MAX_UPLOAD_SIZE * 10 / 1024 / 1024) / 10 . 'MiB max, remember?).');
+        return;
+    }
+
     $result = $mysqli->query("SELECT * FROM `compos` WHERE (`idcompo` = $compo) AND (`active` != 0)") or die('query failed');
     $isClosed = ($result->num_rows == 0); 
     $result->free();
