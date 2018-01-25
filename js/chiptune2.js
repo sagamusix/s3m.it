@@ -1,20 +1,27 @@
 // based on https://deskjet.github.io/chiptune2.js/
 
 // audio context
-ChiptuneAudioContext = AudioContext || webkitAudioContext;
+var ChiptuneAudioContext = window['AudioContext'] || window['webkitAudioContext'];
 
 // config
-function ChiptuneJsConfig(repeatCount) {
+var ChiptuneJsConfig = function (repeatCount, context)
+{
   this.repeatCount = repeatCount;
+  this.context = context;
 }
 
+ChiptuneJsConfig.prototype.constructor = ChiptuneJsConfig;
+
 // player
-function ChiptuneJsPlayer(config) {
-  this.context = new ChiptuneAudioContext;
+var ChiptuneJsPlayer = function (config) {
   this.config = config;
+  this.context = config.context || new ChiptuneAudioContext();
   this.currentPlayingNode = null;
   this.handlers = [];
+  this.touchLocked = true;
 }
+
+ChiptuneJsPlayer.prototype.constructor = ChiptuneJsPlayer;
 
 // event handlers section
 ChiptuneJsPlayer.prototype.fireEvent = function (eventName, response) {
@@ -52,15 +59,35 @@ ChiptuneJsPlayer.prototype.metadata = function() {
   for (var i = 0; i < keys.length; i++) {
     keyNameBuffer = libopenmpt._malloc(keys[i].length + 1);
     writeAsciiToMemory(keys[i], keyNameBuffer);
-    data[keys[i]] = Pointer_stringify(libopenmpt._openmpt_module_get_metadata(player.currentPlayingNode.modulePtr, keyNameBuffer));
+    data[keys[i]] = Pointer_stringify(libopenmpt._openmpt_module_get_metadata(this.currentPlayingNode.modulePtr, keyNameBuffer));
     libopenmpt._free(keyNameBuffer);
   }
   return data;
 }
 
 // playing, etc
+ChiptuneJsPlayer.prototype.unlock = function() {
+
+  var context = this.context;
+  var buffer = context.createBuffer(1, 1, 22050);
+  var unlockSource = context.createBufferSource();
+
+  unlockSource.buffer = buffer;
+  unlockSource.connect(context.destination);
+  unlockSource.start(0);
+
+  this.touchLocked = false;
+}
+
 ChiptuneJsPlayer.prototype.load = function(input, callback) {
+
+  if (this.touchLocked)
+  {
+    this.unlock();
+  }
+
   var player = this;
+
   if (input instanceof File) {
     var reader = new FileReader();
     reader.onload = function() {
@@ -126,7 +153,7 @@ ChiptuneJsPlayer.prototype.createLibopenmptNode = function(buffer, config) {
   // TODO error checking in this whole function
 
   var maxFramesPerChunk = 4096;
-  var processNode = this.context.createScriptProcessor(0, 0, 2);
+  var processNode = this.context.createScriptProcessor(2048, 0, 2);
   processNode.config = config;
   processNode.player = this;
   var byteArray = new Int8Array(buffer);
@@ -176,7 +203,6 @@ ChiptuneJsPlayer.prototype.createLibopenmptNode = function(buffer, config) {
       this.cleanup();
       return;
     }
-
     if (this.paused) {
       for (var i = 0; i < framesToRender; ++i) {
         outputL[i] = 0;
