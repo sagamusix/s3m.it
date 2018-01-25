@@ -94,7 +94,14 @@ switch($_GET["action"])
 function processUpload()
 {
     global $mysqli;
-    $compo = intval($_POST["compo"]);
+
+    if(empty($_POST))
+    {
+        uploadError('No form data was submitted. Likely reason: File size was too big (' . intval(MAX_UPLOAD_SIZE * 10 / 1024 / 1024) / 10 . 'MiB max, remember?).');
+        return;
+    }
+
+    $compo = intval(@$_POST["compo"]);
 
     if(isset($_POST["token"]) && $_POST["token"] > 0)
     {
@@ -106,12 +113,6 @@ function processUpload()
         ') or die('query failed');
         $stmt->bind_param('isi', intval($_POST["token"]), $_POST["author"], $compo);
         $stmt->execute() or die('query failed');
-    }
-
-    if(empty($_POST))
-    {
-        uploadError('No form data was submitted. Likely reason: File size was too big (' . intval(MAX_UPLOAD_SIZE * 10 / 1024 / 1024) / 10 . 'MiB max, remember?).');
-        return;
     }
 
     $result = $mysqli->query("SELECT * FROM `compos` WHERE (`idcompo` = $compo) AND (`active` != 0)") or die('query failed');
@@ -229,9 +230,7 @@ function processUpload()
     {
         $arc->Close();
         uploadError("Captain, the machinery failed! Please contact the technical support!");
-        return;
     }
-
 }
 
 
@@ -253,6 +252,7 @@ function processUploadPing()
     
     ob_end_clean();
 
+    $now = time();
     if($_POST["token"] > 0)
     {
         if($_POST["cancel"] == 1)
@@ -276,7 +276,7 @@ function processUploadPing()
                 `author` = ? AND
                 `idcompo` = ?
             ') or die('query failed');
-            $stmt->bind_param('iisi', time(), intval($_POST["token"]), $_POST["author"], intval($_POST["compo"]));
+            $stmt->bind_param('iisi', $now, intval($_POST["token"]), $_POST["author"], intval($_POST["compo"]));
             $stmt->execute() or die('query failed');
             $stmt->close();
         }
@@ -284,7 +284,7 @@ function processUploadPing()
     } else
     {
         $stmt = $mysqli->prepare('INSERT INTO `uploading` (`author`, `start`, `idcompo`) VALUES (?, ?, ?)');
-        $stmt->bind_param('sii', $_POST["author"], time(), intval($_POST["compo"]));
+        $stmt->bind_param('sii', $_POST["author"], $now, intval($_POST["compo"]));
         $stmt->execute() or die('query failed');
         echo $stmt->insert_id;
         $stmt->close();

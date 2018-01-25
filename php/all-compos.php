@@ -26,7 +26,7 @@ if(!defined("COMPOMANAGER"))
 }
 
 $result = $mysqli->query('
-SELECT COUNT(*) AS `num`, SUM(`points`) AS `points`, `name`, `entries`.`idcompo` AS `idcompo`, `start_date`, DATEDIFF(NOW(), `start_date`) AS `age`
+SELECT COUNT(*) AS `num`, SUM(`points`) AS `points`, `name`, `entries`.`idcompo` AS `idcompo`, DATE(`start_date`) AS `when`, DATEDIFF(NOW(), `start_date`) AS `age`
     FROM `entries`, `compos`
     WHERE `entries`.`idcompo` = `compos`.`idcompo` AND `downloadable` != 0
     GROUP BY `entries`.`idcompo`
@@ -35,10 +35,19 @@ SELECT COUNT(*) AS `num`, SUM(`points`) AS `points`, `name`, `entries`.`idcompo`
 
 while($row = $result->fetch_assoc())
 {
+    $age = $row['age'];
+    if($age < 365)
+    {
+        $age .= 'd';
+    } else
+    {
+        $age = intval($age / 365) . 'y ' . ($age % 365) . 'd';
+    }
+
     echo '<tr><td>', $row['num'], '</td>
         <td>', $row['points'], '</td>
         <td><a href="{{BASE}}compo/', $row['idcompo'], '">', htmlspecialchars($row['name']), '</a></td>
-        <td title="', $row['start_date'], '">', $row['age'], ' days ago</td>
+        <td title="', $row['when'], '">', $age, ' ago</td>
         </tr>';
 }
 $result->free();

@@ -36,8 +36,7 @@ class ArchiveFile
     public function Open()
     {
         $this->lockHandle = fopen($this->lockName, "w+");
-        flock($this->lockHandle, LOCK_EX);
-        return TRUE;
+        return flock($this->lockHandle, LOCK_EX);
     }
     
     public function Close()

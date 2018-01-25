@@ -33,7 +33,10 @@ class ArchiveFile
     public function Open()
     {
         $this->lockHandle = fopen($this->lockName, "w+");
-        flock($this->lockHandle, LOCK_EX);
+        if(!flock($this->lockHandle, LOCK_EX))
+        {
+            return FALSE;
+        }
         
         $this->zip = new ZipArchive;
         if($this->zip->open($this->fileName, ZIPARCHIVE::CREATE) !== TRUE)
