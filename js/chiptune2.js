@@ -47,12 +47,12 @@ ChiptuneJsPlayer.prototype.duration = function() {
 
 ChiptuneJsPlayer.prototype.metadata = function() {
   var data = {};
-  var keys = libopenmpt.Pointer_stringify(libopenmpt._openmpt_module_get_metadata_keys(this.currentPlayingNode.modulePtr)).split(';');
+  var keys = Pointer_stringify(libopenmpt._openmpt_module_get_metadata_keys(this.currentPlayingNode.modulePtr)).split(';');
   var keyNameBuffer = 0;
   for (var i = 0; i < keys.length; i++) {
     keyNameBuffer = libopenmpt._malloc(keys[i].length + 1);
-    libopenmpt.writeStringToMemory(keys[i], keyNameBuffer);
-    data[keys[i]] = libopenmpt.Pointer_stringify(libopenmpt._openmpt_module_get_metadata(player.currentPlayingNode.modulePtr, keyNameBuffer));
+    writeAsciiToMemory(keys[i], keyNameBuffer);
+    data[keys[i]] = Pointer_stringify(libopenmpt._openmpt_module_get_metadata(player.currentPlayingNode.modulePtr, keyNameBuffer));
     libopenmpt._free(keyNameBuffer);
   }
   return data;
