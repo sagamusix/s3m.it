@@ -327,8 +327,13 @@ function play(elem)
         var js = document.createElement('script');
         js.type = 'text/javascript';
         js.id = 'libopenmpt';
-        js.src = basepath + 'js/libopenmpt.php';
-        js.onload = handler = function(event) { libopenmpt_play(elem); };
+        js.src = basepath + 'js/libopenmpt.js';
+        js.onload = handler = function(event)
+        {
+            libopenmpt.onRuntimeInitialized = _ => {
+                libopenmpt_play(elem);
+            };
+        };
         document.body.appendChild(js); 
     } else
     {

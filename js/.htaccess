@@ -1,14 +1,26 @@
 FileETag None
 
-<Files *.gz>
+<Files *.js.gz>
   AddType "text/javascript" .gz
   AddEncoding gzip .gz
 </Files>
 
-<Files *.br>
+<Files *.js.br>
   AddType "text/javascript" .br
   AddEncoding br .br
 </Files>
+
+<Files *.wasm.gz>
+  AddType "application/wasm" .gz
+  AddEncoding gzip .gz
+</Files>
+
+<Files *.wasm.br>
+  AddType "application/wasm" .br
+  AddEncoding br .br
+</Files>
+
+AddType "application/wasm" .wasm
 
 RewriteEngine On
 
