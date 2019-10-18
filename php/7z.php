@@ -17,9 +17,12 @@ class ArchiveFile
     protected $lockHandle;
     protected $lockName;
     
-    protected function Exec($arg)
+    protected function Exec($arg, $toStdOut = FALSE, &$output = NULL)
     {
-        exec('7z ' . $arg);
+        if(!$toStdOut)
+            exec('7z ' . $arg, $output);
+        else
+            passthru('7z ' . $arg);
     }
     
     public function FileName($name)
@@ -64,18 +67,28 @@ class ArchiveFile
     
     public function Extract($file)
     {
-        $tempDir = sys_get_temp_dir() . '/';
-        self::Exec('e ' . escapeshellarg($this->fileName) . ' -o' . escapeshellarg($tempDir) . ' ' . escapeshellarg($file));
-        $tempFile = $tempDir . $file;
-        $stat = stat($tempFile);
-    
+        $details = array();
+        self::Exec('l -slt ' . escapeshellarg($this->fileName) . ' ' . escapeshellarg($file), FALSE, $details);
+        $size = -1;
+        $modified = -1;
+        foreach ($details as $detail)
+        {
+            $kv = explode(' = ', $detail);
+            if($kv[0] == 'Size')
+                $size = $kv[1];
+            elseif($kv[0] == 'Modified')
+                $modified = strtotime($kv[1]);
+        }
+
         ob_end_clean();
         header('Content-Disposition: attachment;filename="' . addslashes(utf8_decode($file)) . '";filename*=utf-8\'\'' . rawurlencode($file));
         header("Content-type: application/octet-stream");
-        header("Content-Length: " . $stat["size"]);
-        header('Last-Modified: ' . date('r', $stat["mtime"]));
-        readfile($tempFile);
-        unlink($tempFile);
+        if($size != -1)
+            header("Content-Length: " . $size);
+        if($modified != -1)
+            header('Last-Modified: ' . date('r', $modified));
+
+        self::Exec('e ' . escapeshellarg($this->fileName) . ' -so ' . escapeshellarg($file), TRUE);
     }
 
     public function Recompress()
