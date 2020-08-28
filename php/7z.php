@@ -86,7 +86,7 @@ class ArchiveFile
         if($size != -1)
             header("Content-Length: " . $size);
         if($modified != -1)
-            header('Last-Modified: ' . date('r', $modified));
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $modified));
 
         self::Exec('e ' . escapeshellarg($this->fileName) . ' -so ' . escapeshellarg($file), TRUE);
     }

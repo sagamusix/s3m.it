@@ -34,7 +34,7 @@ if($supportsBrotli)
     header('Content-Encoding: br');
 else if($supportsGzip)
     header('Content-Encoding: gzip');
-header('Last-Modified: ' . date('r', $fdate));
+header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $fdate));
 header("Cache-Control: must-revalidate");
 header('Expires: ' . date('r', time() + 60 * 60 * 24));
 header('Content-Length: ' . $fsize);

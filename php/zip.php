@@ -77,7 +77,7 @@ class ArchiveFile
         header('Content-Disposition: attachment; filename="' . $file . '"');
         header("Content-type: application/octet-stream");
         header("Content-Length: " . $stat["size"]);
-        header('Last-Modified: ' . date('r', $stat["mtime"]));
+        header('Last-Modified: ' . gmdate('D, d M Y H:i:s T', $stat["mtime"]));
         echo $this->zip->getFromName($file);
     }
     
