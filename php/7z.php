@@ -44,7 +44,7 @@ class ArchiveFile
     
     public function Close()
     {
-        fclose($this->lockHandle);
+        if($this->lockHandle) fclose($this->lockHandle);
         @unlink($this->lockName);
         @chmod($this->fileName, 0755);
     }

@@ -106,12 +106,13 @@ function processUpload()
     if(isset($_POST["token"]) && $_POST["token"] > 0)
     {
         // Remove upload token
+        $token = intval($_POST["token"]);
         $stmt = $mysqli->prepare('DELETE FROM `uploading` WHERE
             `idupload` = ? AND
             `author` = ? AND
             `idcompo` = ?
         ') or die('query failed');
-        $stmt->bind_param('isi', intval($_POST["token"]), $_POST["author"], $compo);
+        $stmt->bind_param('isi', $token, $_POST["author"], $compo);
         $stmt->execute() or die('query failed');
     }
 
@@ -253,6 +254,7 @@ function processUploadPing()
     ob_end_clean();
 
     $now = time();
+    $compoID = intval($_POST["compo"]);
     if($_POST["token"] > 0)
     {
         if($_POST["cancel"] == 1)
@@ -263,7 +265,7 @@ function processUploadPing()
                 `author` = ? AND
                 `idcompo` = ?
             ') or die('query failed');
-            $stmt->bind_param('isi', intval($_POST["token"]), $_POST["author"], intval($_POST["compo"]));
+            $stmt->bind_param('isi', intval($_POST["token"]), $_POST["author"], $compoID);
             $stmt->execute() or die('query failed');
             $stmt->close();
         } else
@@ -276,7 +278,7 @@ function processUploadPing()
                 `author` = ? AND
                 `idcompo` = ?
             ') or die('query failed');
-            $stmt->bind_param('iisi', $now, intval($_POST["token"]), $_POST["author"], intval($_POST["compo"]));
+            $stmt->bind_param('iisi', $now, intval($_POST["token"]), $_POST["author"], $compoID);
             $stmt->execute() or die('query failed');
             $stmt->close();
         }
@@ -284,7 +286,7 @@ function processUploadPing()
     } else
     {
         $stmt = $mysqli->prepare('INSERT INTO `uploading` (`author`, `start`, `idcompo`) VALUES (?, ?, ?)');
-        $stmt->bind_param('sii', $_POST["author"], $now, intval($_POST["compo"]));
+        $stmt->bind_param('sii', $_POST["author"], $now, $compoID);
         $stmt->execute() or die('query failed');
         echo $stmt->insert_id;
         $stmt->close();
@@ -546,6 +548,10 @@ function canDeleteFile($file)
     if(ACCESS == ACCESS_FULLADMIN)
     {
         return true;
+    }
+    if(!isset($_SESSION["idhost"]))
+    {
+        return false;
     }
     $file = intval($file);
     $result = $mysqli->query("SELECT * FROM `compos` A, `entries` B WHERE (B.`identry` = $file) AND (A.`idcompo` = B.`idcompo`) AND (A.`idhost` = " . intval($_SESSION["idhost"]) . ")") or die('query failed');
