@@ -20,7 +20,7 @@ CREATE TABLE `entries` (
   `identry` int(10) UNSIGNED NOT NULL,
   `author` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `filename` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
-  `title` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
+  `title` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL,
   `date` timestamp NOT NULL DEFAULT current_timestamp(),
   `idcompo` int(10) UNSIGNED NOT NULL,
   `altered` tinyint(3) UNSIGNED NOT NULL DEFAULT 0,
