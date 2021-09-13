@@ -172,6 +172,7 @@ function updateCompo()
     if(!intval($row['downloadable']) && !intval($_POST["active"]))
     {
         $arc = new ArchiveFile(UPLOAD_DIR . $compo);
+        $arc->OpenWrite();
         $arc->Recompress();
         $arc->Close();
     }

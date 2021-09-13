@@ -147,6 +147,10 @@ if((isset($_POST['votes']) && is_array($_POST['votes'])) || (isset($_POST['penal
     @chmod($outFileName, 0755);
     
     $arc = new ArchiveFile(UPLOAD_DIR . $compo);
+    if(!$arc->OpenWrite())
+    {
+        die("cannot open pack for writing results file!");
+    }
     $resultsTxt = UPLOAD_DIR . 'results.txt';
     $arc->PrepareReplace($resultsTxt);
     if(copy($outFileName, $resultsTxt)) $arc->Add($resultsTxt);

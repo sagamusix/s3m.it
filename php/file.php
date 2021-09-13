@@ -142,7 +142,7 @@ function processUpload()
     setcookie("author", $_POST["author"], time() + 60 * 60 * 24 * 365, "/");
 
     $arc = new ArchiveFile(UPLOAD_DIR . $compo);
-    if($arc->Open() === FALSE)
+    if($arc->OpenWrite() === FALSE)
     {
         echo "<p>Can't update the pack, please contact the technical support!</p>";
         return;
@@ -327,7 +327,7 @@ function fetchFile($file)
     $result->free();
 
     $arc = new ArchiveFile(UPLOAD_DIR . $row["idcompo"]);
-    if($arc->Open() === FALSE)
+    if($arc->OpenRead() === FALSE)
     {
         echo "<p>Can't unpack the pack, please contact the technical support!</p>";
         return;
@@ -354,7 +354,7 @@ function deleteFile($file)
     $result->free();
 
     $arc = new ArchiveFile(UPLOAD_DIR . $row["idcompo"]);
-    if($arc->Open() === FALSE)
+    if($arc->OpenWrite() === FALSE)
     {
         echo "<p>Can't update the pack, please contact the technical support!</p>";
         return;

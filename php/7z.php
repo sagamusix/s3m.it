@@ -35,11 +35,27 @@ class ArchiveFile
         $this->fileName = self::FileName($name);
         $this->lockName = $this->fileName . ".lock";
     }
-    
-    public function Open()
+
+    public function OpenRead()
     {
-        $this->lockHandle = fopen($this->lockName, "w+");
-        return flock($this->lockHandle, LOCK_EX);
+        return $this->OpenInternal(FALSE);
+    }
+
+    public function OpenWrite()
+    {
+        return $this->OpenInternal(TRUE);
+    }
+
+    private function OpenInternal($writeAccess)
+    {
+		$this->lockHandle = fopen($this->lockName, "w+");
+        if(!flock($this->lockHandle, $writeAccess ? LOCK_EX : LOCK_SH))
+        {
+            fclose($this->lockHandle);
+            @unlink($this->lockName);
+            return FALSE;
+        }
+        return TRUE;
     }
     
     public function Close()

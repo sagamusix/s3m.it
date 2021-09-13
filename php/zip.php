@@ -30,17 +30,31 @@ class ArchiveFile
         $this->lockName = $this->fileName . ".lock";
     }
     
-    public function Open()
+    public function OpenRead()
+    {
+        return $this->OpenInternal(FALSE);
+    }
+    
+    public function OpenWrite()
+    {
+        return $this->OpenInternal(TRUE);
+    }
+
+    private function OpenInternal($writeAccess)
     {
         $this->lockHandle = fopen($this->lockName, "w+");
-        if(!flock($this->lockHandle, LOCK_EX))
+        if(!flock($this->lockHandle, $writeAccess ? LOCK_EX : LOCK_SH))
         {
+            fclose($this->lockHandle);
+            @unlink($this->lockName);
             return FALSE;
         }
         
         $this->zip = new ZipArchive;
-        if($this->zip->open($this->fileName, ZIPARCHIVE::CREATE) !== TRUE)
+        if($this->zip->open($this->fileName, ZIPARCHIVE::CREATE) !== TRUE)  // TODO: use ZIPARCHIVE::RDONLY on PHP 7.4.3 and above for !$writeAccess
         {
+            fclose($this->lockHandle);
+            @unlink($this->lockName);
             return FALSE;
         }
         return TRUE;
