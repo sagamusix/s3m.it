@@ -75,7 +75,7 @@ class ArchiveFile
     
     public function PrepareReplace($file)
     {
-        this->Remove($file);
+        $this->Remove($file);
     }
     
     public function Delete($file)
