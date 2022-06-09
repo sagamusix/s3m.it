@@ -161,8 +161,8 @@ if((isset($_POST['votes']) && is_array($_POST['votes'])) || (isset($_POST['penal
 }
 
 ?>
-  <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous"></script>
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha384-Dziy8F2VlJQLMShA6FHWNul/veM9bCkRUaLqr199K94ntO5QUrLJBEbYegdSkkqX" crossorigin="anonymous"></script>
+  <script src="{{BASE}}js/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ"></script>
+  <script src="{{BASE}}js/jquery-ui-1.12.1.min.js" integrity="sha384-Dziy8F2VlJQLMShA6FHWNul/veM9bCkRUaLqr199K94ntO5QUrLJBEbYegdSkkqX"></script>
   <script type="text/javascript">var BASEDIR = "{{BASE}}";</script>
   <script src="{{BASE}}js/lazyvote.js" type="text/javascript"></script>
     <h2>Entries</h2>

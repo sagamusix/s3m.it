@@ -292,7 +292,7 @@ function compoTable($row)
     {
         // Dynamic update of the file list + show active uploaders on close
     ?>
-    <script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" crossorigin="anonymous" async></script>
+    <script src="{{BASE}}js/jquery-1.12.4.min.js" integrity="sha384-nvAa0+6Qg9clwYCGGPpDQLVpLNn0fRaROjHqs13t4Ggj3Ez50XnGQqc/r8MhnRDZ" async></script>
     <script type="text/javascript">
     var closeUpload;
     function checkClose()
