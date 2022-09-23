@@ -20,7 +20,7 @@ require_once('util.php');
 ?>
 <form method="get">
   <div class="table-desc" style="background-image:url({{BASE}}img/magnifier.png)"><label for="what">Search for:</label></div>
-  <div class="table-item"><input name="what" id="what" value="<?php echo htmlspecialchars(isset($_GET["what"]) ? $_GET["what"] : ''); ?>" type="text" required style="width:70%"></div>
+  <div class="table-item"><input name="what" id="what" value="<?php echo htmlspecialchars(isset($_GET["what"]) ? $_GET["what"] : ''); ?>" type="text" required autofocus style="width:70%"></div>
 
   <div class="table-desc" style="background-image:url({{BASE}}img/page.png)">Search in:</div>
   <div class="table-item">

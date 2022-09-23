@@ -55,7 +55,7 @@ if(isset($_POST["login"]) && ($_POST["login"] == $oldSession) && isset($_POST["h
           <input type="hidden" name="login" value="<?php echo $_SESSION["login_rand"]; ?>">
           
           <div class="table-desc" style="background-image:url({{BASE}}img/user.png)"><label for="hostname">Name:</label></div>
-          <div class="table-item"><input name="hostname" id="hostname" type="text" value="<?php if(isset($_POST["hostname"])) echo htmlspecialchars($_POST["hostname"]); ?>" maxlength="<?php echo MAX_USERNAME_LENGTH; ?>" required style="width:50%"></div>
+          <div class="table-item"><input name="hostname" id="hostname" type="text" value="<?php if(isset($_POST["hostname"])) echo htmlspecialchars($_POST["hostname"]); ?>" maxlength="<?php echo MAX_USERNAME_LENGTH; ?>" required autofocus style="width:50%"></div>
 
           <div class="table-desc" style="background-image:url({{BASE}}img/key.png)"><label for="password">Password:</label></div>
           <div class="table-item"><input name="password" id="password" type="password" required style="width:50%"></div>
