@@ -282,7 +282,7 @@ function compoTable($row)
     <div class="table-item"><label><input type="radio" id="checkactive" name="active" value="1" <?php if(empty($row) || $row["active"]) echo ' checked'; ?>> Open (people can upload songs)</label></div>
     
     <div class="table-desc" style="background-image:url({{BASE}}img/compress.png)"><label for="checkdownloadable">Download:</label></div>
-    <div class="table-item"><label><input type="radio" id="checkdownloadable" name="active" value="0" <?php if($row["downloadable"]) echo ' checked'; ?>> Closed (people can download the pack)</label></div>
+    <div class="table-item"><label><input type="radio" id="checkdownloadable" name="active" value="0" <?php if($row["downloadable"] ?? false) echo ' checked'; ?>> Closed (people can download the pack)</label></div>
     
     <div class="table-desc">&nbsp;</div>
     <div class="table-item"><input type="submit"></div>

@@ -304,7 +304,7 @@ function userTable($row)
           <input type="hidden" name="which" value="<?php if(!empty($row)) echo $row["idhost"]; ?>">
           
           <div class="table-desc" style="background-image:url({{BASE}}img/user.png)"><label for="hostname">Name:</label></div>
-          <div class="table-item"><input name="hostname" id="hostname" type="text" value="<?php echo htmlspecialchars($row["hostname"]); ?>" maxlength="<?php echo MAX_USERNAME_LENGTH; ?>" required style="width:50%"></div>
+          <div class="table-item"><input name="hostname" id="hostname" type="text" value="<?php echo htmlspecialchars($row["hostname"] ?? ''); ?>" maxlength="<?php echo MAX_USERNAME_LENGTH; ?>" required style="width:50%"></div>
 
           <div class="table-desc" style="background-image:url({{BASE}}img/key.png)"><label for="password">Password:</label></div>
           <div class="table-item"><input name="password" id="password" type="password" required style="width:50%"></div>
@@ -321,7 +321,7 @@ function userTable($row)
             {
                 if(canAddRole($role) || (!empty($row) && $role == $row["access_level"]))
                 {
-                    echo '<option value="', $role, '"', ($role == $row["access_level"]) ? ' selected="selected"' : '', '>', htmlspecialchars(getRoleName($role)), '</option>';
+                    echo '<option value="', $role, '"', ($role == ($row["access_level"] ?? '')) ? ' selected="selected"' : '', '>', htmlspecialchars(getRoleName($role)), '</option>';
                 }
             }
             ?>
