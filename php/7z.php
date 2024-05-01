@@ -17,7 +17,7 @@ class ArchiveFile
     protected $lockHandle;
     protected $lockName;
     
-    protected function Exec($arg, $toStdOut = FALSE, &$output = NULL)
+    protected static function Exec($arg, $toStdOut = FALSE, &$output = NULL)
     {
         if(!$toStdOut)
             exec('7z ' . $arg, $output);
@@ -25,12 +25,12 @@ class ArchiveFile
             passthru('7z ' . $arg);
     }
     
-    public function FileName($name)
+    public static function FileName($name)
     {
         return $name . '.7z';
     }
     
-    public function ArchiveFile($name)
+    public function __construct($name)
     {
         $this->fileName = self::FileName($name);
         $this->lockName = $this->fileName . ".lock";
