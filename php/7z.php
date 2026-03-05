@@ -55,6 +55,7 @@ class ArchiveFile
             @unlink($this->lockName);
             return FALSE;
         }
+        ignore_user_abort(TRUE);
         return TRUE;
     }
     
@@ -63,6 +64,7 @@ class ArchiveFile
         if($this->lockHandle) fclose($this->lockHandle);
         @unlink($this->lockName);
         @chmod($this->fileName, 0755);
+        ignore_user_abort(FALSE);
     }
     
     public function Add($file)
