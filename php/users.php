@@ -96,17 +96,18 @@ function addUser()
         redirect(BASEDIR);
     }
     
-    if($_POST["hostname"] == "")
+    if(($_POST["hostname"] ?? '') == '')
     {
         redirect(BASEDIR . "admin/users/1#addusertable");
     }
 
-    if($_POST["password"] == "" || $_POST["password"] != $_POST["password_rep"])
+    if(($_POST["password"] ?? '') == '' || $_POST["password"] != $_POST["password_rep"])
     {
         redirect(BASEDIR . "admin/users/2#addusertable");
     }
     
-    if(!canAddRole($_POST["role"]))
+    $role = intval($_POST["role"] ?? '');
+    if(!canAddRole($role))
     {
         redirect(BASEDIR . "admin/users/3#addusertable");
     }
@@ -124,8 +125,9 @@ function addUser()
         redirect(BASEDIR . "admin/users/4#addusertable");
     }
     
+    $passwordHash = makepassword($_POST["password"]);
     $stmt = $mysqli->prepare('INSERT INTO `hosts` (`hostname`, `password`, `access_level`) VALUES (?, ?, ?)');
-    $stmt->bind_param('ssi', $_POST["hostname"], makepassword($_POST["password"]), intval($_POST["role"]));
+    $stmt->bind_param('ssi', $_POST["hostname"], $passwordHash, $role);
     $stmt->execute() or die('query failed');
     $stmt->close();
 
